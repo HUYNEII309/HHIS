@@ -9,9 +9,11 @@ import {
   Image,
   useWindowDimensions,
 } from "react-native";
-
+import * as LocalAuthentication from "expo-local-authentication";
+// Thêm import này
+import { useRouter } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 import { useEffect, useState } from "react";
-
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -233,7 +235,7 @@ function SplashParticle({
           width: size,
           height: size,
           borderRadius: size / 2,
-          backgroundColor: "rgba(255,255,255,0.6)",
+          backgroundColor: "rgba(225,29,72,0.35)",
         },
         style,
       ]}
@@ -255,6 +257,9 @@ function StatPill({ num, label }: { num: string; label: string }) {
 export default function Index() {
   const { width } = useWindowDimensions();
   const isTablet  = width >= 768;
+
+  // Trong function Index()
+const router = useRouter();
 
   const [fontsLoaded] = useFonts({
     DMSans_400Regular,
@@ -393,17 +398,21 @@ export default function Index() {
     transform: [{ translateY: formTranslateY.value }],
   }));
 
-  const handleLogin = () => {
-    if (loading) return;
-    setLoading(true);
-    setTimeout(() => setLoading(false), 2000);
-  };
+  // Sửa handleLogin
+const handleLogin = () => {
+  if (loading) return;
+  setLoading(true);
+  setTimeout(() => {
+    setLoading(false);
+    router.replace("/home");
+  }, 2000);
+};
 
   if (!fontsLoaded) return null;
 
   return (
     <View style={s.root}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="dark-content" translucent backgroundColor="transparent" />
 
       {/* ── Main layout ── */}
       <View style={[s.layout, isTablet && s.layoutRow]}>
@@ -464,23 +473,6 @@ export default function Index() {
 
               {/* ── Header ── */}
               <View style={s.formHeader}>
-                {/* <View style={s.formLogoRow}>
-                  <View style={s.formLogoFrame}>
-                    <Image
-                      source={require("../assets/images/logo100.png")}
-                      style={s.formLogo}
-                      resizeMode="contain"
-                    />
-                  </View>
-                  <View style={s.formLogoDivider} />
-                  <View>
-                    <Text style={s.formLogoName}>HHIS</Text>
-                    <Text style={s.formLogoCaption}>
-                      Hệ thống thông tin bệnh viện
-                    </Text>
-                  </View>
-                </View> */}
-
                 <View style={s.headingBlock}>
                   <View style={s.accentLine} />
                   <View style={s.headingInner}>
@@ -587,7 +579,7 @@ export default function Index() {
         pointerEvents={splashDone ? "none" : "auto"}
       >
         <LinearGradient
-          colors={["#6b1122", C.redDeep, "#b8223f", "#d4405f"]}
+          colors={["#fff1f2", "#ffffff", C.cream]}
           start={{ x: 0.1, y: 0 }}
           end={{ x: 0.9, y: 1 }}
           style={StyleSheet.absoluteFill}
@@ -647,16 +639,16 @@ const s = StyleSheet.create({
     height: 180,
     borderRadius: 90,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.22)",
-    backgroundColor: "rgba(255,255,255,0.05)",
+    borderColor: "rgba(155,28,53,0.18)",
+    backgroundColor: "rgba(225,29,72,0.05)",
   },
   splashLogoWrap: {
     width: 110,
     height: 110,
     borderRadius: 30,
-    backgroundColor: "rgba(255,255,255,0.13)",
+    backgroundColor: C.redPale,
     borderWidth: 1.5,
-    borderColor: "rgba(255,255,255,0.28)",
+    borderColor: "rgba(155,28,53,0.25)",
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 26,
@@ -665,13 +657,13 @@ const s = StyleSheet.create({
   splashTitle: {
     fontFamily: "DMSerifDisplay_400Regular",
     fontSize: 44,
-    color: C.white,
+    color: C.redDeep,
     letterSpacing: 6,
   },
   splashSub: {
     fontFamily: "DMSans_400Regular",
     fontSize: 13,
-    color: "rgba(255,255,255,0.5)",
+    color: C.warmGray,
     marginTop: 10,
     letterSpacing: 0.4,
   },
@@ -686,11 +678,11 @@ const s = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: "rgba(255,255,255,0.25)",
+    backgroundColor: "rgba(225,29,72,0.25)",
   },
   splashDotActive: {
     width: 18,
-    backgroundColor: "rgba(255,255,255,0.7)",
+    backgroundColor: C.redSoft,
   },
 
   // ── Left panel ──
@@ -779,45 +771,6 @@ const s = StyleSheet.create({
 
   // ── Form header ──
   formHeader: { marginBottom: 32 },
-  formLogoRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 14,
-    marginBottom: 28,
-    paddingBottom: 22,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(155,28,53,0.1)",
-  },
-  formLogoFrame: {
-    width: 46,
-    height: 46,
-    borderRadius: 12,
-    backgroundColor: C.redPale,
-    borderWidth: 1,
-    borderColor: "rgba(155,28,53,0.12)",
-    justifyContent: "center",
-    alignItems: "center",
-    overflow: "hidden",
-  },
-  formLogo: { width: 38, height: 38 },
-  formLogoDivider: {
-    width: 1,
-    height: 30,
-    backgroundColor: "rgba(155,28,53,0.15)",
-  },
-  formLogoName: {
-    fontFamily: "DMSerifDisplay_400Regular",
-    fontSize: 18,
-    color: C.dark,
-    letterSpacing: 1.4,
-  },
-  formLogoCaption: {
-    fontFamily: "DMSans_400Regular",
-    fontSize: 11,
-    color: C.warmGray,
-    marginTop: 2,
-  },
-
   headingBlock: { gap: 0 },
   accentLine: {
     width: 36,
@@ -882,7 +835,6 @@ const s = StyleSheet.create({
     fontFamily: "DMSans_400Regular",
     fontSize: 14,
     color: C.dark,
-    // ── Web fix: xóa viền đen mặc định của trình duyệt khi focus ──
     ...({ outline: "none" } as any),
   },
 
