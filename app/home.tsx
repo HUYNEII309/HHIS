@@ -49,7 +49,7 @@ const B = {
 };
 
 const ROUTES: Record<string, string> = {
-  "Đăng ký khám bệnh": "/register",
+  "Đăng ký khám bệnh": "/Hosobenhan/Benhnhan",
   "Danh sách kê đơn thuốc": "/prescription",
   "Danh sách lịch hẹn": "/appointment",
   "Phiếu thu": "/receipt",
@@ -83,7 +83,7 @@ const DATA = [
     icon: "reader-sharp",
     color: "#10B981",
     items: [
-      { title: "Đăng ký khám bệnh", icon: "create-outline" },
+      { title: "Đăng ký khám bệnh", icon: "create-outline"},
       { title: "Danh sách kê đơn thuốc", icon: "receipt-outline" },
       { title: "Danh sách lịch hẹn", icon: "alarm-outline" },
       { title: "Phiếu thu", icon: "wallet-outline" },
@@ -145,10 +145,10 @@ const QUICK_ACTIONS = [
     title: "Đăng ký khám",
     icon: "add-circle",
     color: "#10B981",
-    route: "/register",
+    route: "/Hosobenhan/Benhnhan", // Đã cập nhật đường dẫn mới
   },
   {
-    title: "Bệnh nhân",
+    title: "DS bệnh nhân",
     icon: "people",
     color: "#6366F1",
     route: "/patient-list",
