@@ -8,9 +8,9 @@ import {
   StatusBar,
   Image,
   useWindowDimensions,
+  Platform,
 } from "react-native";
 import * as LocalAuthentication from "expo-local-authentication";
-// Thêm import này
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useEffect, useState } from "react";
@@ -44,16 +44,16 @@ import {
 
 // ─── Tokens ────────────────────────────────────────────────────────
 const C = {
-  redDeep:  "#9b1c35",
-  redMid:   "#c81e4a",
-  redSoft:  "#e11d48",
-  redLight: "#fda4af",
-  redPale:  "#fff1f2",
-  cream:    "#fdfaf8",
-  warmGray: "#8a7e7e",
-  border:   "rgba(155,28,53,0.18)",
-  white:    "#ffffff",
-  dark:     "#1a0a10",
+  redDeep:  "#8A1930", // Tối ưu lại tone đỏ cho sang trọng hơn
+  redMid:   "#C01C42",
+  redSoft:  "#E11D48",
+  redLight: "#FDA4AF",
+  redPale:  "#FFF1F2",
+  cream:    "#F8F9FA", // Chuyển sang tone xám/trắng nhạt để giao diện clean hơn
+  warmGray: "#737373",
+  border:   "rgba(138,25,48,0.12)",
+  white:    "#FFFFFF",
+  dark:     "#171717",
 };
 
 // ─── Toggle Switch ─────────────────────────────────────────────────
@@ -78,14 +78,14 @@ function ToggleSwitch({
     backgroundColor: interpolateColor(
       anim.value,
       [0, 1],
-      ["#e2d6d8", C.redSoft]
+      ["#E5E5E5", C.redSoft]
     ),
   }));
 
   const thumbStyle = useAnimatedStyle(() => ({
     transform: [
       {
-        translateX: interpolate(anim.value, [0, 1], [2, 18]),
+        translateX: interpolate(anim.value, [0, 1], [2, 20]),
       },
     ],
   }));
@@ -126,11 +126,11 @@ function Field({
 
   const handleFocus = () => {
     setFocused(true);
-    borderAnim.value = withTiming(1, { duration: 200 });
+    borderAnim.value = withTiming(1, { duration: 250 });
   };
   const handleBlur = () => {
     setFocused(false);
-    borderAnim.value = withTiming(0, { duration: 200 });
+    borderAnim.value = withTiming(0, { duration: 250 });
   };
 
   const borderStyle = useAnimatedStyle(() => ({
@@ -142,23 +142,25 @@ function Field({
     backgroundColor: interpolateColor(
       borderAnim.value,
       [0, 1],
-      [C.white, "#fffbfc"]
+      [C.white, C.white]
     ),
+    shadowOpacity: interpolate(borderAnim.value, [0, 1], [0.02, 0.08]),
+    transform: [{ scale: interpolate(borderAnim.value, [0, 1], [1, 1.01]) }],
   }));
 
   return (
     <Animated.View style={[s.fieldWrap, borderStyle]}>
       <Ionicons
         name={icon}
-        size={17}
-        color={focused ? C.redSoft : C.redLight}
-        style={{ marginRight: 6 }}
+        size={18}
+        color={focused ? C.redSoft : "#A3A3A3"}
+        style={{ marginRight: 10 }}
       />
       <TextInput
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor="#d0bfc1"
+        placeholderTextColor="#A3A3A3"
         secureTextEntry={secure === true && isShown !== true}
         keyboardType={keyboardType ?? "default"}
         autoCapitalize="none"
@@ -170,11 +172,11 @@ function Field({
         onBlur={handleBlur}
       />
       {showToggle && (
-        <TouchableOpacity onPress={onToggle} hitSlop={10}>
+        <TouchableOpacity onPress={onToggle} hitSlop={15}>
           <Ionicons
             name={isShown ? "eye-outline" : "eye-off-outline"}
-            size={17}
-            color={focused ? C.redSoft : C.redLight}
+            size={18}
+            color={focused ? C.redSoft : "#A3A3A3"}
           />
         </TouchableOpacity>
       )}
@@ -257,9 +259,7 @@ function StatPill({ num, label }: { num: string; label: string }) {
 export default function Index() {
   const { width } = useWindowDimensions();
   const isTablet  = width >= 768;
-
-  // Trong function Index()
-const router = useRouter();
+  const router = useRouter();
 
   const [fontsLoaded] = useFonts({
     DMSans_400Regular,
@@ -270,11 +270,11 @@ const router = useRouter();
   });
 
   // Form state
-  const [email,     setEmail]     = useState("");
-  const [password,  setPassword]  = useState("");
-  const [showPwd,   setShowPwd]   = useState(false);
-  const [remember,  setRemember]  = useState(false);
-  const [loading,   setLoading]   = useState(false);
+  const [email,     setEmail]    = useState("");
+  const [password,  setPassword] = useState("");
+  const [showPwd,   setShowPwd]  = useState(false);
+  const [remember,  setRemember] = useState(false);
+  const [loading,   setLoading]  = useState(false);
 
   // ── Splash values ──
   const splashOpacity = useSharedValue(1);
@@ -398,15 +398,14 @@ const router = useRouter();
     transform: [{ translateY: formTranslateY.value }],
   }));
 
-  // Sửa handleLogin
-const handleLogin = () => {
-  if (loading) return;
-  setLoading(true);
-  setTimeout(() => {
-    setLoading(false);
-    router.replace("/home");
-  }, 2000);
-};
+  const handleLogin = () => {
+    if (loading) return;
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      router.replace("/home");
+    }, 2000);
+  };
 
   if (!fontsLoaded) return null;
 
@@ -419,7 +418,7 @@ const handleLogin = () => {
 
         {/* LEFT PANEL */}
         <LinearGradient
-          colors={["#6b1122", C.redDeep, "#b8223f"]}
+          colors={["#5A0F1A", C.redDeep, "#A31631"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={[s.panelLeft, isTablet && s.panelLeftTablet]}
@@ -498,7 +497,7 @@ const handleLogin = () => {
               />
 
               {/* ── Password ── */}
-              <Text style={[s.fieldLabel, { marginTop: 18 }]}>Mật khẩu</Text>
+              <Text style={[s.fieldLabel, { marginTop: 20 }]}>Mật khẩu</Text>
               <Field
                 icon="lock-closed-outline"
                 placeholder="Nhập mật khẩu"
@@ -531,19 +530,19 @@ const handleLogin = () => {
                 style={s.btnLoginWrap}
               >
                 <LinearGradient
-                  colors={["#6b1122", C.redDeep, C.redMid]}
+                  colors={[C.redMid, C.redDeep]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   style={s.btnLogin}
                 >
                   <Ionicons
                     name={loading ? "refresh-outline" : "arrow-forward-circle-outline"}
-                    size={20}
+                    size={22}
                     color={C.white}
                     style={{ marginRight: 8 }}
                   />
                   <Text style={s.btnLoginText}>
-                    {loading ? "Đang xác thực..." : "ĐĂNG NHẬP"}
+                    {loading ? "ĐANG XÁC THỰC..." : "ĐĂNG NHẬP"}
                   </Text>
                 </LinearGradient>
               </TouchableOpacity>
@@ -557,7 +556,7 @@ const handleLogin = () => {
 
               {/* ── Card login ── */}
               <TouchableOpacity activeOpacity={0.82} style={s.btnSecondary}>
-                <Ionicons name="card-outline" size={18} color={C.redDeep} />
+                <Ionicons name="card-outline" size={20} color={C.redDeep} />
                 <Text style={s.btnSecondaryText}>
                   Đăng nhập bằng thẻ nhân viên
                 </Text>
@@ -579,7 +578,7 @@ const handleLogin = () => {
         pointerEvents={splashDone ? "none" : "auto"}
       >
         <LinearGradient
-          colors={["#fff1f2", "#ffffff", C.cream]}
+          colors={["#FFF1F2", "#FFFFFF", C.cream]}
           start={{ x: 0.1, y: 0 }}
           end={{ x: 0.9, y: 1 }}
           style={StyleSheet.absoluteFill}
@@ -638,20 +637,29 @@ const s = StyleSheet.create({
     width: 180,
     height: 180,
     borderRadius: 90,
-    borderWidth: 1,
-    borderColor: "rgba(155,28,53,0.18)",
-    backgroundColor: "rgba(225,29,72,0.05)",
+    borderWidth: 1.5,
+    borderColor: "rgba(225,29,72,0.12)",
+    backgroundColor: "rgba(225,29,72,0.03)",
   },
   splashLogoWrap: {
     width: 110,
     height: 110,
-    borderRadius: 30,
+    borderRadius: 32,
     backgroundColor: C.redPale,
     borderWidth: 1.5,
-    borderColor: "rgba(155,28,53,0.25)",
+    borderColor: "rgba(225,29,72,0.15)",
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 26,
+    ...Platform.select({
+      ios: {
+        shadowColor: C.redDeep,
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.1,
+        shadowRadius: 16,
+      },
+      android: { elevation: 8 },
+    }),
   },
   splashLogo: { width: 74, height: 74 },
   splashTitle: {
@@ -662,7 +670,7 @@ const s = StyleSheet.create({
   },
   splashSub: {
     fontFamily: "DMSans_400Regular",
-    fontSize: 13,
+    fontSize: 14,
     color: C.warmGray,
     marginTop: 10,
     letterSpacing: 0.4,
@@ -671,54 +679,54 @@ const s = StyleSheet.create({
     position: "absolute",
     bottom: 52,
     flexDirection: "row",
-    gap: 6,
+    gap: 8,
     alignItems: "center",
   },
   splashDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: "rgba(225,29,72,0.25)",
+    backgroundColor: "rgba(225,29,72,0.2)",
   },
   splashDotActive: {
-    width: 18,
+    width: 20,
     backgroundColor: C.redSoft,
   },
 
   // ── Left panel ──
   panelLeft: {
-    paddingHorizontal: 28,
-    paddingVertical: 50,
+    paddingHorizontal: 32,
+    paddingVertical: 56,
     justifyContent: "space-between",
   },
   panelLeftTablet: { flex: 1.1 },
 
-  brand: { flexDirection: "row", alignItems: "center", gap: 12 },
+  brand: { flexDirection: "row", alignItems: "center", gap: 14 },
   brandLogo: {
-    width: 46,
-    height: 46,
-    borderRadius: 12,
-    backgroundColor: "rgba(255,255,255,0.12)",
+    width: 50,
+    height: 50,
+    borderRadius: 14,
+    backgroundColor: "rgba(255,255,255,0.15)",
   },
   brandTitle: {
     fontFamily: "DMSerifDisplay_400Regular",
-    fontSize: 20,
+    fontSize: 22,
     color: C.white,
     letterSpacing: 2,
   },
   brandSub: {
     fontFamily: "DMSans_400Regular",
-    fontSize: 10,
-    color: "rgba(255,255,255,0.44)",
+    fontSize: 11,
+    color: "rgba(255,255,255,0.6)",
     marginTop: 2,
   },
   heroBlock: { flex: 1, justifyContent: "center", paddingVertical: 28 },
   heroTitle: {
     fontFamily: "DMSerifDisplay_400Regular",
-    fontSize: 40,
+    fontSize: 44,
     color: C.white,
-    lineHeight: 52,
-    marginBottom: 18,
+    lineHeight: 56,
+    marginBottom: 20,
   },
   heroItalic: {
     fontFamily: "DMSerifDisplay_400Regular_Italic",
@@ -726,33 +734,33 @@ const s = StyleSheet.create({
   },
   heroDesc: {
     fontFamily: "DMSans_400Regular",
-    fontSize: 14,
-    color: "rgba(255,255,255,0.46)",
-    lineHeight: 23,
-    maxWidth: 310,
+    fontSize: 15,
+    color: "rgba(255,255,255,0.7)",
+    lineHeight: 24,
+    maxWidth: 320,
   },
-  statsRow: { flexDirection: "row", marginTop: 40 },
+  statsRow: { flexDirection: "row", marginTop: 46 },
   statPill: {
-    borderLeftWidth: 1,
-    borderLeftColor: "rgba(255,255,255,0.18)",
-    paddingLeft: 16,
-    marginRight: 30,
+    borderLeftWidth: 1.5,
+    borderLeftColor: "rgba(255,255,255,0.2)",
+    paddingLeft: 18,
+    marginRight: 32,
   },
   statNum: {
     fontFamily: "DMSerifDisplay_400Regular",
-    fontSize: 24,
+    fontSize: 26,
     color: C.white,
   },
   statLbl: {
     fontFamily: "DMSans_400Regular",
-    fontSize: 11,
-    color: "rgba(255,255,255,0.36)",
-    marginTop: 2,
+    fontSize: 12,
+    color: "rgba(255,255,255,0.6)",
+    marginTop: 4,
   },
   panelFooter: {
     fontFamily: "DMSans_400Regular",
-    fontSize: 11,
-    color: "rgba(255,255,255,0.2)",
+    fontSize: 12,
+    color: "rgba(255,255,255,0.4)",
     marginTop: 8,
   },
 
@@ -760,24 +768,24 @@ const s = StyleSheet.create({
   panelRight: {
     flexGrow: 1,
     justifyContent: "center",
-    paddingHorizontal: 26,
-    paddingVertical: 38,
+    paddingHorizontal: 28,
+    paddingVertical: 42,
   },
   panelRightTablet: {
-    paddingHorizontal: 56,
-    paddingVertical: 52,
+    paddingHorizontal: 60,
+    paddingVertical: 56,
   },
-  formWrap: { maxWidth: 400, width: "100%", alignSelf: "center" },
+  formWrap: { maxWidth: 420, width: "100%", alignSelf: "center" },
 
   // ── Form header ──
-  formHeader: { marginBottom: 32 },
+  formHeader: { marginBottom: 36 },
   headingBlock: { gap: 0 },
   accentLine: {
-    width: 36,
-    height: 3,
+    width: 40,
+    height: 4,
     borderRadius: 2,
     backgroundColor: C.redSoft,
-    marginBottom: 14,
+    marginBottom: 16,
   },
   headingInner: {
     flexDirection: "row",
@@ -787,53 +795,64 @@ const s = StyleSheet.create({
   },
   headingMain: {
     fontFamily: "DMSerifDisplay_400Regular",
-    fontSize: 32,
+    fontSize: 34,
     color: C.dark,
-    lineHeight: 38,
+    lineHeight: 40,
   },
   headingBadge: {
-    backgroundColor: C.redDeep,
+    backgroundColor: C.redPale,
     paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingVertical: 5,
     borderRadius: 8,
     alignSelf: "flex-end",
-    marginBottom: 4,
+    marginBottom: 5,
+    borderWidth: 1,
+    borderColor: "rgba(225,29,72,0.15)",
   },
   headingBadgeText: {
     fontFamily: "DMSans_600SemiBold",
     fontSize: 11,
-    color: C.white,
+    color: C.redDeep,
     letterSpacing: 1.5,
   },
   headingDesc: {
     fontFamily: "DMSans_400Regular",
-    fontSize: 13,
+    fontSize: 14,
     color: C.warmGray,
-    lineHeight: 20,
+    lineHeight: 22,
   },
 
   // ── Fields ──
   fieldLabel: {
     fontFamily: "DMSans_600SemiBold",
-    fontSize: 10,
+    fontSize: 11,
     color: C.warmGray,
-    letterSpacing: 0.9,
+    letterSpacing: 1,
     textTransform: "uppercase",
-    marginBottom: 8,
+    marginBottom: 10,
   },
   fieldWrap: {
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderRadius: 13,
-    paddingHorizontal: 14,
-    minHeight: 50,
+    borderRadius: 16, // Bo tròn nhiều hơn
+    paddingHorizontal: 16,
+    minHeight: 56, // Cao hơn để dễ chạm
+    backgroundColor: C.white,
+    ...Platform.select({
+      ios: {
+        shadowColor: C.dark,
+        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: 6,
+      },
+      android: { elevation: 2 },
+    }),
   },
   fieldInput: {
     flex: 1,
-    paddingVertical: 13,
-    fontFamily: "DMSans_400Regular",
-    fontSize: 14,
+    paddingVertical: 14,
+    fontFamily: "DMSans_500Medium",
+    fontSize: 15,
     color: C.dark,
     ...({ outline: "none" } as any),
   },
@@ -843,100 +862,121 @@ const s = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 18,
-    marginBottom: 26,
+    marginTop: 20,
+    marginBottom: 30,
   },
   rememberRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
+    gap: 12,
   },
   rememberText: {
-    fontFamily: "DMSans_400Regular",
-    fontSize: 13,
+    fontFamily: "DMSans_500Medium",
+    fontSize: 14,
     color: C.warmGray,
   },
   forgotText: {
-    fontFamily: "DMSans_500Medium",
-    fontSize: 13,
+    fontFamily: "DMSans_600SemiBold",
+    fontSize: 14,
     color: C.redSoft,
   },
 
   // Toggle switch
   toggleTrack: {
-    width: 40,
-    height: 22,
-    borderRadius: 11,
+    width: 44,
+    height: 24,
+    borderRadius: 12,
     justifyContent: "center",
   },
   toggleThumb: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
     backgroundColor: C.white,
     shadowColor: "#000",
-    shadowOpacity: 0.15,
-    shadowRadius: 2,
-    shadowOffset: { width: 0, height: 1 },
-    elevation: 2,
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
   },
 
   // ── Buttons ──
-  btnLoginWrap: { borderRadius: 13, overflow: "hidden" },
+  btnLoginWrap: { 
+    borderRadius: 16, 
+    overflow: "hidden",
+    ...Platform.select({
+      ios: {
+        shadowColor: C.redDeep,
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.25,
+        shadowRadius: 12,
+      },
+      android: { elevation: 6 },
+    }),
+  },
   btnLogin: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 15,
-    borderRadius: 13,
+    paddingVertical: 18, // Tăng diện tích bấm
+    borderRadius: 16,
   },
   btnLoginText: {
     fontFamily: "DMSans_600SemiBold",
-    fontSize: 13,
+    fontSize: 14,
     color: C.white,
-    letterSpacing: 1.6,
+    letterSpacing: 1.8,
   },
 
   divider: {
     flexDirection: "row",
     alignItems: "center",
-    marginVertical: 22,
-    gap: 14,
+    marginVertical: 26,
+    gap: 16,
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: "rgba(155,28,53,0.1)",
+    backgroundColor: "rgba(0,0,0,0.06)", // Mềm mại hơn
   },
   dividerText: {
-    fontFamily: "DMSans_400Regular",
-    fontSize: 12,
-    color: "#c4b0b3",
+    fontFamily: "DMSans_500Medium",
+    fontSize: 13,
+    color: "#A3A3A3",
   },
 
   btnSecondary: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 9,
-    borderWidth: 1,
-    borderColor: "rgba(155,28,53,0.22)",
-    borderRadius: 13,
-    paddingVertical: 13,
-    backgroundColor: C.cream,
+    gap: 10,
+    borderWidth: 1.5,
+    borderColor: "rgba(138,25,48,0.15)",
+    borderRadius: 16,
+    paddingVertical: 16,
+    backgroundColor: C.white,
+    ...Platform.select({
+      ios: {
+        shadowColor: C.dark,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.04,
+        shadowRadius: 6,
+      },
+      android: { elevation: 1 },
+    }),
   },
   btnSecondaryText: {
-    fontFamily: "DMSans_500Medium",
-    fontSize: 13,
+    fontFamily: "DMSans_600SemiBold",
+    fontSize: 14,
     color: C.redDeep,
   },
 
   disclaimer: {
     fontFamily: "DMSans_400Regular",
-    fontSize: 11,
-    color: "#c4b0b3",
+    fontSize: 12,
+    color: "#A3A3A3",
     textAlign: "center",
-    lineHeight: 18,
-    marginTop: 30,
+    lineHeight: 20,
+    marginTop: 36,
   },
 });

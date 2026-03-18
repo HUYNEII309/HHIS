@@ -156,6 +156,7 @@ export default function Home() {
         barStyle={dark ? "light-content" : "dark-content"}
         translucent
         backgroundColor="transparent"
+        
       />
 
       <ScrollView showsVerticalScrollIndicator={false}>
