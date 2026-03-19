@@ -50,6 +50,7 @@ const B = {
 
 const ROUTES: Record<string, string> = {
   "Đăng ký khám bệnh": "/Hosobenhan/Benhnhan",
+  "Danh sách bệnh nhân": "/Hosobenhan/Danhsachbenhnhan",
   "Danh sách kê đơn thuốc": "/prescription",
   "Danh sách lịch hẹn": "/appointment",
   "Phiếu thu": "/receipt",
@@ -84,6 +85,7 @@ const DATA = [
     color: "#10B981",
     items: [
       { title: "Đăng ký khám bệnh", icon: "create-outline"},
+      { title: "Danh sách bệnh nhân", icon: "people"},
       { title: "Danh sách kê đơn thuốc", icon: "receipt-outline" },
       { title: "Danh sách lịch hẹn", icon: "alarm-outline" },
       { title: "Phiếu thu", icon: "wallet-outline" },
@@ -151,7 +153,7 @@ const QUICK_ACTIONS = [
     title: "DS bệnh nhân",
     icon: "people",
     color: "#6366F1",
-    route: "/patient-list",
+    route: "/Hosobenhan/Danhsachbenhnhan",
   },
   {
     title: "Lịch hẹn",

@@ -414,7 +414,7 @@ export default function Benhnhan() {
               />
             </View>
             <View style={{ flex: 1, marginLeft: 8 }}>
-              <CustomInput label="Huyết áp (mHg)" placeholder="120/80" />
+              <CustomInput label="Huyết áp (mHg)" placeholder="120/80" keyboardType="numeric" />
             </View>
           </View>
         </View>
