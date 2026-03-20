@@ -178,13 +178,10 @@ const Nhomthuthuat: React.FC = () => {
   const router = useRouter();
   const [data, setData] = useState<NhomThuThuat[]>(SAMPLE_DATA);
   const [search, setSearch] = useState("");
-
-  // Accordion
   const [expandedGroups, setExpandedGroups] = useState<Set<number>>(
     new Set([1, 2]),
   );
 
-  // Modal nhóm
   const [groupModalVisible, setGroupModalVisible] = useState(false);
   const [editGroup, setEditGroup] = useState<NhomThuThuat | null>(null);
   const [groupForm, setGroupForm] = useState({
@@ -193,7 +190,6 @@ const Nhomthuthuat: React.FC = () => {
   });
   const [showPhongPicker, setShowPhongPicker] = useState(false);
 
-  // Modal thủ thuật
   const [ttModalVisible, setTtModalVisible] = useState(false);
   const [editTt, setEditTt] = useState<ThuThuat | null>(null);
   const [targetGroupId, setTargetGroupId] = useState<number | null>(null);
@@ -217,13 +213,11 @@ const Nhomthuthuat: React.FC = () => {
     });
   };
 
-  // ── Nhóm CRUD ──
   const openAddGroup = () => {
     setEditGroup(null);
     setGroupForm({ tenNhom: "", phongChucNang: PHONG_CHUC_NANG[0] });
     setGroupModalVisible(true);
   };
-
   const openEditGroup = (g: NhomThuThuat) => {
     setEditGroup(g);
     setGroupForm({ tenNhom: g.tenNhom, phongChucNang: g.phongChucNang });
@@ -249,14 +243,16 @@ const Nhomthuthuat: React.FC = () => {
       );
     } else {
       const newId = Math.max(...data.map((g) => g.id), 0) + 1;
-      const newGroup: NhomThuThuat = {
-        id: newId,
-        tenNhom: groupForm.tenNhom,
-        phongChucNang: groupForm.phongChucNang,
-        hienThi: true,
-        danhSachThuThuat: [],
-      };
-      setData((prev) => [...prev, newGroup]);
+      setData((prev) => [
+        ...prev,
+        {
+          id: newId,
+          tenNhom: groupForm.tenNhom,
+          phongChucNang: groupForm.phongChucNang,
+          hienThi: true,
+          danhSachThuThuat: [],
+        },
+      ]);
       setExpandedGroups((prev) => new Set([...prev, newId]));
     }
     setGroupModalVisible(false);
@@ -277,20 +273,17 @@ const Nhomthuthuat: React.FC = () => {
     );
   };
 
-  const toggleGroupVisible = (id: number) => {
+  const toggleGroupVisible = (id: number) =>
     setData((prev) =>
       prev.map((g) => (g.id === id ? { ...g, hienThi: !g.hienThi } : g)),
     );
-  };
 
-  // ── Thủ thuật CRUD ──
   const openAddTt = (groupId: number) => {
     setEditTt(null);
     setTargetGroupId(groupId);
     setTtForm({ tenThuThuat: "", donGia: "", giamGia: "" });
     setTtModalVisible(true);
   };
-
   const openEditTt = (groupId: number, tt: ThuThuat) => {
     setEditTt(tt);
     setTargetGroupId(groupId);
@@ -309,11 +302,10 @@ const Nhomthuthuat: React.FC = () => {
     }
     const donGia = Number(ttForm.donGia.replace(/\D/g, "")) || 0;
     const giamGia = Number(ttForm.giamGia.replace(/\D/g, "")) || 0;
-
     setData((prev) =>
       prev.map((g) => {
         if (g.id !== targetGroupId) return g;
-        if (editTt) {
+        if (editTt)
           return {
             ...g,
             danhSachThuThuat: g.danhSachThuThuat.map((t) =>
@@ -322,27 +314,25 @@ const Nhomthuthuat: React.FC = () => {
                 : t,
             ),
           };
-        } else {
-          const newId =
-            Math.max(
-              ...g.danhSachThuThuat.map((t) => t.id),
-              0,
-              ...data.flatMap((gg) => gg.danhSachThuThuat.map((t) => t.id)),
-            ) + 1;
-          return {
-            ...g,
-            danhSachThuThuat: [
-              ...g.danhSachThuThuat,
-              {
-                id: newId,
-                tenThuThuat: ttForm.tenThuThuat,
-                donGia,
-                giamGia,
-                hienThi: true,
-              },
-            ],
-          };
-        }
+        const newId =
+          Math.max(
+            ...g.danhSachThuThuat.map((t) => t.id),
+            0,
+            ...data.flatMap((gg) => gg.danhSachThuThuat.map((t) => t.id)),
+          ) + 1;
+        return {
+          ...g,
+          danhSachThuThuat: [
+            ...g.danhSachThuThuat,
+            {
+              id: newId,
+              tenThuThuat: ttForm.tenThuThuat,
+              donGia,
+              giamGia,
+              hienThi: true,
+            },
+          ],
+        };
       }),
     );
     setTtModalVisible(false);
@@ -371,7 +361,7 @@ const Nhomthuthuat: React.FC = () => {
     ]);
   };
 
-  const toggleTtVisible = (groupId: number, ttId: number) => {
+  const toggleTtVisible = (groupId: number, ttId: number) =>
     setData((prev) =>
       prev.map((g) =>
         g.id === groupId
@@ -384,9 +374,7 @@ const Nhomthuthuat: React.FC = () => {
           : g,
       ),
     );
-  };
 
-  // Lọc
   const filteredData = data.filter(
     (g) =>
       search === "" ||
@@ -405,7 +393,6 @@ const Nhomthuthuat: React.FC = () => {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={B.primary} />
 
-      {/* HEADER */}
       <SafeAreaView edges={["top"]} style={styles.header}>
         <View style={styles.headerContent}>
           <TouchableOpacity
@@ -427,7 +414,6 @@ const Nhomthuthuat: React.FC = () => {
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}>
-        {/* TÌM KIẾM */}
         <View style={styles.searchCard}>
           <View style={styles.searchBox}>
             <Ionicons name="search-outline" size={16} color={B.textSub} />
@@ -446,7 +432,6 @@ const Nhomthuthuat: React.FC = () => {
           </View>
         </View>
 
-        {/* THỐNG KÊ */}
         <View style={styles.statsRow}>
           <View style={[styles.statChip, { backgroundColor: "#FEF2F2" }]}>
             <Ionicons name="grid-outline" size={16} color={B.primary} />
@@ -469,7 +454,6 @@ const Nhomthuthuat: React.FC = () => {
           </View>
         </View>
 
-        {/* DANH SÁCH NHÓM */}
         {filteredData.length === 0 ? (
           <View style={styles.emptyBox}>
             <Ionicons name="grid-outline" size={52} color={B.border} />
@@ -494,19 +478,17 @@ const Nhomthuthuat: React.FC = () => {
                   styles.groupCard,
                   !group.hienThi && styles.groupCardHidden,
                 ]}>
-                {/* ── Header nhóm ── */}
+                {/* Header nhóm */}
                 <TouchableOpacity
                   style={styles.groupHeader}
                   onPress={() => toggleGroup(group.id)}
                   activeOpacity={0.75}>
-                  {/* Màu nhóm */}
                   <View
                     style={[
                       styles.groupColorBar,
                       { backgroundColor: group.hienThi ? B.primary : B.border },
                     ]}
                   />
-
                   <View style={styles.groupHeaderContent}>
                     <View style={styles.groupTitleRow}>
                       <View style={{ flex: 1 }}>
@@ -540,8 +522,6 @@ const Nhomthuthuat: React.FC = () => {
                           </Text>
                         </View>
                       </View>
-
-                      {/* Chips số lượng */}
                       <View style={styles.groupChips}>
                         <View style={styles.groupChip}>
                           <Text style={styles.groupChipNum}>{ttCount}</Text>
@@ -565,7 +545,6 @@ const Nhomthuthuat: React.FC = () => {
                           </Text>
                         </View>
                       </View>
-
                       <Ionicons
                         name={isExpanded ? "chevron-up" : "chevron-down"}
                         size={18}
@@ -574,7 +553,6 @@ const Nhomthuthuat: React.FC = () => {
                       />
                     </View>
 
-                    {/* Nút nhóm */}
                     <View style={styles.groupActions}>
                       <TouchableOpacity
                         style={styles.groupActionBtn}
@@ -640,7 +618,7 @@ const Nhomthuthuat: React.FC = () => {
                   </View>
                 </TouchableOpacity>
 
-                {/* ── Danh sách thủ thuật ── */}
+                {/* Danh sách thủ thuật dạng card */}
                 {isExpanded && (
                   <View style={styles.ttList}>
                     {group.danhSachThuThuat.length === 0 ? (
@@ -664,105 +642,111 @@ const Nhomthuthuat: React.FC = () => {
                       </View>
                     ) : (
                       <>
-                        {/* Header bảng */}
-                        <View style={styles.ttTableHeader}>
-                          <Text style={[styles.ttHeaderCell, { flex: 2.5 }]}>
-                            Tên thủ thuật
-                          </Text>
-                          <Text
-                            style={[
-                              styles.ttHeaderCell,
-                              { flex: 1.3, textAlign: "right" },
-                            ]}>
-                            Đơn giá
-                          </Text>
-                          <Text
-                            style={[
-                              styles.ttHeaderCell,
-                              { flex: 1, textAlign: "right" },
-                            ]}>
-                            Giảm giá
-                          </Text>
-                          <Text
-                            style={[
-                              styles.ttHeaderCell,
-                              { flex: 0.9, textAlign: "center" },
-                            ]}>
-                            Hiện
-                          </Text>
-                          <Text
-                            style={[
-                              styles.ttHeaderCell,
-                              { flex: 1.2, textAlign: "center" },
-                            ]}>
-                            Thao tác
-                          </Text>
-                        </View>
-
                         {group.danhSachThuThuat.map((tt, idx) => (
                           <View
                             key={tt.id}
                             style={[
-                              styles.ttRow,
-                              idx % 2 !== 0 && styles.ttRowAlt,
-                              !tt.hienThi && styles.ttRowHidden,
+                              styles.ttCard,
+                              !tt.hienThi && styles.ttCardHidden,
                             ]}>
-                            {/* Tên */}
+                            {/* Số thứ tự */}
                             <View
-                              style={{
-                                flex: 2.5,
-                                flexDirection: "row",
-                                alignItems: "center",
-                                gap: 5,
-                              }}>
-                              <View
-                                style={[
-                                  styles.ttDot,
-                                  {
-                                    backgroundColor: tt.hienThi
-                                      ? B.primary
-                                      : B.border,
-                                  },
-                                ]}
-                              />
+                              style={[
+                                styles.ttIndex,
+                                {
+                                  backgroundColor: tt.hienThi
+                                    ? B.primary + "15"
+                                    : "#F1F5F9",
+                                },
+                              ]}>
                               <Text
                                 style={[
-                                  styles.ttNameText,
-                                  !tt.hienThi && { color: B.textSub },
-                                ]}
-                                numberOfLines={2}>
-                                {tt.tenThuThuat}
+                                  styles.ttIndexText,
+                                  { color: tt.hienThi ? B.primary : B.textSub },
+                                ]}>
+                                {String(idx + 1).padStart(2, "0")}
                               </Text>
                             </View>
-                            {/* Đơn giá */}
-                            <Text
-                              style={[
-                                styles.ttCell,
-                                {
-                                  flex: 1.3,
-                                  textAlign: "right",
-                                  color: B.primary,
-                                  fontWeight: "700",
-                                },
-                              ]}>
-                              {formatMoney(tt.donGia)}
-                            </Text>
-                            {/* Giảm giá */}
-                            <Text
-                              style={[
-                                styles.ttCell,
-                                {
-                                  flex: 1,
-                                  textAlign: "right",
-                                  color: tt.giamGia > 0 ? B.warning : B.border,
-                                },
-                              ]}>
-                              {tt.giamGia > 0
-                                ? `-${formatMoney(tt.giamGia)}`
-                                : "—"}
-                            </Text>
-                            {/* Toggle hiện/ẩn */}
-                            <View style={{ flex: 0.9, alignItems: "center" }}>
+
+                            {/* Nội dung */}
+                            <View style={{ flex: 1, gap: 5 }}>
+                              {/* Dòng 1: Tên + badge ẩn */}
+                              <View
+                                style={{
+                                  flexDirection: "row",
+                                  alignItems: "center",
+                                  gap: 6,
+                                }}>
+                                <Text
+                                  style={[
+                                    styles.ttName,
+                                    !tt.hienThi && { color: B.textSub },
+                                  ]}
+                                  numberOfLines={1}>
+                                  {tt.tenThuThuat}
+                                </Text>
+                                {!tt.hienThi && (
+                                  <View style={styles.ttHiddenBadge}>
+                                    <Ionicons
+                                      name="eye-off-outline"
+                                      size={9}
+                                      color={B.textSub}
+                                    />
+                                    <Text style={styles.ttHiddenText}>Ẩn</Text>
+                                  </View>
+                                )}
+                              </View>
+
+                              {/* Dòng 2: Giá dạng pill */}
+                              <View style={styles.ttPriceGroup}>
+                                <View style={styles.ttPriceItem}>
+                                  <Text style={styles.ttPriceLabel}>
+                                    Đơn giá
+                                  </Text>
+                                  <Text style={styles.ttDonGia}>
+                                    {formatMoney(tt.donGia)}
+                                  </Text>
+                                </View>
+                                <View style={styles.ttPriceSep} />
+                                <View style={styles.ttPriceItem}>
+                                  <Text style={styles.ttPriceLabel}>
+                                    Giảm giá
+                                  </Text>
+                                  <Text
+                                    style={[
+                                      styles.ttGiamGia,
+                                      {
+                                        color:
+                                          tt.giamGia > 0 ? B.warning : B.border,
+                                      },
+                                    ]}>
+                                    {tt.giamGia > 0
+                                      ? `-${formatMoney(tt.giamGia)}`
+                                      : "—"}
+                                  </Text>
+                                </View>
+                                {tt.giamGia > 0 && (
+                                  <>
+                                    <View style={styles.ttPriceSep} />
+                                    <View style={styles.ttPriceItem}>
+                                      <Text style={styles.ttPriceLabel}>
+                                        Thành tiền
+                                      </Text>
+                                      <Text
+                                        style={[
+                                          styles.ttDonGia,
+                                          { color: B.success },
+                                        ]}>
+                                        {formatMoney(tt.donGia - tt.giamGia)}
+                                      </Text>
+                                    </View>
+                                  </>
+                                )}
+                              </View>
+                            </View>
+
+                            {/* Cột phải: Switch + nút */}
+                            <View style={styles.ttRightCol}>
                               <Switch
                                 value={tt.hienThi}
                                 onValueChange={() =>
@@ -775,46 +759,38 @@ const Nhomthuthuat: React.FC = () => {
                                 thumbColor={tt.hienThi ? B.success : "#ccc"}
                                 style={{
                                   transform: [
-                                    { scaleX: 0.75 },
-                                    { scaleY: 0.75 },
+                                    { scaleX: 0.72 },
+                                    { scaleY: 0.72 },
                                   ],
                                 }}
                               />
-                            </View>
-                            {/* Nút sửa/xóa */}
-                            <View
-                              style={{
-                                flex: 1.2,
-                                flexDirection: "row",
-                                justifyContent: "center",
-                                gap: 4,
-                              }}>
-                              <TouchableOpacity
-                                style={styles.ttActionBtn}
-                                onPress={() => openEditTt(group.id, tt)}>
-                                <Ionicons
-                                  name="create-outline"
-                                  size={14}
-                                  color={B.info}
-                                />
-                              </TouchableOpacity>
-                              <TouchableOpacity
-                                style={[
-                                  styles.ttActionBtn,
-                                  { backgroundColor: "#FFF0F0" },
-                                ]}
-                                onPress={() => deleteTt(group.id, tt.id)}>
-                                <Ionicons
-                                  name="trash-outline"
-                                  size={14}
-                                  color={B.danger}
-                                />
-                              </TouchableOpacity>
+                              <View style={styles.ttBtnRow}>
+                                <TouchableOpacity
+                                  style={styles.ttActionBtn}
+                                  onPress={() => openEditTt(group.id, tt)}>
+                                  <Ionicons
+                                    name="create-outline"
+                                    size={13}
+                                    color={B.info}
+                                  />
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                  style={[
+                                    styles.ttActionBtn,
+                                    { backgroundColor: "#FFF0F0" },
+                                  ]}
+                                  onPress={() => deleteTt(group.id, tt.id)}>
+                                  <Ionicons
+                                    name="trash-outline"
+                                    size={13}
+                                    color={B.danger}
+                                  />
+                                </TouchableOpacity>
+                              </View>
                             </View>
                           </View>
                         ))}
 
-                        {/* Footer tổng */}
                         <View style={styles.ttTableFooter}>
                           <Text style={styles.ttFooterLabel}>
                             {ttCount} thủ thuật · {ttHienThi} đang hiển thị
@@ -830,7 +806,7 @@ const Nhomthuthuat: React.FC = () => {
         )}
       </ScrollView>
 
-      {/* ── MODAL NHÓM ── */}
+      {/* MODAL NHÓM */}
       <Modal
         visible={groupModalVisible}
         animationType="slide"
@@ -849,12 +825,10 @@ const Nhomthuthuat: React.FC = () => {
                 <Ionicons name="close" size={20} color={B.textTitle} />
               </TouchableOpacity>
             </View>
-
             <ScrollView
               style={styles.modalBody}
               showsVerticalScrollIndicator={false}>
               <View style={{ gap: 16, paddingBottom: 30 }}>
-                {/* Tên nhóm */}
                 <View style={styles.formField}>
                   <Text style={styles.formLabel}>
                     Tên nhóm thủ thuật{" "}
@@ -872,8 +846,6 @@ const Nhomthuthuat: React.FC = () => {
                     />
                   </View>
                 </View>
-
-                {/* Phòng chức năng */}
                 <View style={styles.formField}>
                   <Text style={styles.formLabel}>
                     Thuộc phòng chức năng{" "}
@@ -904,7 +876,6 @@ const Nhomthuthuat: React.FC = () => {
                       color={B.textSub}
                     />
                   </TouchableOpacity>
-
                   {showPhongPicker && (
                     <View style={styles.pickerDropdown}>
                       {PHONG_CHUC_NANG.map((phong) => (
@@ -955,7 +926,6 @@ const Nhomthuthuat: React.FC = () => {
                 </View>
               </View>
             </ScrollView>
-
             <View style={styles.modalFooter}>
               <TouchableOpacity
                 style={styles.cancelBtn}
@@ -973,7 +943,7 @@ const Nhomthuthuat: React.FC = () => {
         </View>
       </Modal>
 
-      {/* ── MODAL THỦ THUẬT ── */}
+      {/* MODAL THỦ THUẬT */}
       <Modal
         visible={ttModalVisible}
         animationType="slide"
@@ -992,8 +962,6 @@ const Nhomthuthuat: React.FC = () => {
                 <Ionicons name="close" size={20} color={B.textTitle} />
               </TouchableOpacity>
             </View>
-
-            {/* Tên nhóm */}
             {targetGroupId && (
               <View style={styles.ttModalGroup}>
                 <Ionicons name="grid-outline" size={13} color={B.primary} />
@@ -1002,12 +970,10 @@ const Nhomthuthuat: React.FC = () => {
                 </Text>
               </View>
             )}
-
             <ScrollView
               style={styles.modalBody}
               showsVerticalScrollIndicator={false}>
               <View style={{ gap: 16, paddingBottom: 30 }}>
-                {/* Tên thủ thuật */}
                 <View style={styles.formField}>
                   <Text style={styles.formLabel}>
                     Tên thủ thuật <Text style={{ color: B.danger }}>*</Text>
@@ -1028,8 +994,6 @@ const Nhomthuthuat: React.FC = () => {
                     />
                   </View>
                 </View>
-
-                {/* Đơn giá + Giảm giá */}
                 <View style={styles.formRow}>
                   <View style={[styles.formField, { flex: 1 }]}>
                     <Text style={styles.formLabel}>Đơn giá (₫)</Text>
@@ -1083,8 +1047,6 @@ const Nhomthuthuat: React.FC = () => {
                     )}
                   </View>
                 </View>
-
-                {/* Preview thành tiền */}
                 {ttForm.donGia !== "" && (
                   <View style={styles.previewBox}>
                     <View style={styles.previewRow}>
@@ -1125,7 +1087,6 @@ const Nhomthuthuat: React.FC = () => {
                 )}
               </View>
             </ScrollView>
-
             <View style={styles.modalFooter}>
               <TouchableOpacity
                 style={styles.cancelBtn}
@@ -1239,7 +1200,6 @@ const styles = StyleSheet.create({
   },
   emptyAddText: { fontSize: 13, fontWeight: "700", color: B.primary },
 
-  // Group card
   groupCard: {
     backgroundColor: B.white,
     borderRadius: 14,
@@ -1309,8 +1269,96 @@ const styles = StyleSheet.create({
   },
   groupActionText: { fontSize: 11, fontWeight: "700" },
 
-  // TT list
-  ttList: { borderTopWidth: 1, borderTopColor: B.border },
+  // ── TT card list ──
+  ttList: { borderTopWidth: 1, borderTopColor: B.border, padding: 8, gap: 6 },
+
+  ttCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    backgroundColor: B.white,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: B.border,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.04,
+        shadowRadius: 3,
+      },
+      android: { elevation: 1 },
+    }),
+  },
+  ttCardHidden: { opacity: 0.55, backgroundColor: "#F8FAFC" },
+
+  ttIndex: {
+    width: 28,
+    height: 28,
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+    alignSelf: "flex-start",
+    marginTop: 2,
+  },
+  ttIndexText: { fontSize: 11, fontWeight: "800" },
+
+  ttName: { flex: 1, fontSize: 13, fontWeight: "700", color: B.textTitle },
+  ttHiddenBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 2,
+    backgroundColor: "#F1F5F9",
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  ttHiddenText: { fontSize: 9, color: B.textSub, fontWeight: "600" },
+
+  ttPriceGroup: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F8FAFC",
+    borderRadius: 7,
+    borderWidth: 1,
+    borderColor: B.border,
+    overflow: "hidden",
+  },
+  ttPriceItem: { flex: 1, alignItems: "center", paddingVertical: 4 },
+  ttPriceSep: { width: 1, height: 28, backgroundColor: B.border },
+  ttPriceLabel: { fontSize: 9, color: B.textSub, fontWeight: "500" },
+  ttDonGia: { fontSize: 11, color: B.primary, fontWeight: "800" },
+  ttGiamGia: { fontSize: 10, fontWeight: "600" },
+
+  ttRightCol: { alignItems: "center", gap: 4 },
+  ttBtnRow: { flexDirection: "row", gap: 4 },
+  ttActionBtn: {
+    width: 26,
+    height: 26,
+    borderRadius: 7,
+    backgroundColor: "#EFF6FF",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  ttTableFooter: {
+    backgroundColor: "#F8FAFC",
+    paddingVertical: 7,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: B.border,
+    marginTop: 2,
+  },
+  ttFooterLabel: {
+    fontSize: 11,
+    color: B.textSub,
+    fontWeight: "500",
+    textAlign: "center",
+  },
+
   ttEmpty: { alignItems: "center", paddingVertical: 24, gap: 6 },
   ttEmptyText: { fontSize: 12, color: B.textSub },
   ttEmptyAdd: {
@@ -1326,47 +1374,6 @@ const styles = StyleSheet.create({
   },
   ttEmptyAddText: { fontSize: 12, fontWeight: "700", color: B.primary },
 
-  ttTableHeader: {
-    flexDirection: "row",
-    backgroundColor: B.primary,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-  },
-  ttHeaderCell: { fontSize: 10, fontWeight: "700", color: "#fff" },
-
-  ttRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 10,
-    paddingHorizontal: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F1F5F9",
-  },
-  ttRowAlt: { backgroundColor: "#FAFAFA" },
-  ttRowHidden: { opacity: 0.5 },
-  ttCell: { fontSize: 11, color: B.textTitle },
-  ttCellView: {}, // View container - no text styles
-  ttDot: { width: 7, height: 7, borderRadius: 4 },
-  ttNameText: { flex: 1, fontSize: 11, color: B.textTitle, fontWeight: "600" },
-  ttActionBtn: {
-    width: 28,
-    height: 28,
-    borderRadius: 7,
-    backgroundColor: "#EFF6FF",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  ttTableFooter: {
-    backgroundColor: "#F8FAFC",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderTopWidth: 1,
-    borderTopColor: B.border,
-  },
-  ttFooterLabel: { fontSize: 11, color: B.textSub, fontWeight: "500" },
-
-  // Modal
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",
@@ -1443,7 +1450,6 @@ const styles = StyleSheet.create({
   },
   saveBtnText: { fontSize: 14, fontWeight: "700", color: "#fff" },
 
-  // Form
   formRow: { flexDirection: "row", gap: 10 },
   formField: { gap: 6 },
   formLabel: { fontSize: 12, fontWeight: "700", color: B.textSub },
