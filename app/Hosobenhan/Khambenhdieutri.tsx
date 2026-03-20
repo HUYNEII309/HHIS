@@ -75,6 +75,16 @@ const Khambenhdieutri: React.FC = () => {
   const [tienSuBenh, setTienSuBenh] = useState<string[]>([]);
   const [isEditingTienSu, setIsEditingTienSu] = useState(false);
 
+  // State Chỉ số sinh tồn
+  const [chiSoSinhTon, setChiSoSinhTon] = useState({
+    mach: "",
+    nhipTho: "",
+    nhietDo: "",
+    canNang: "",
+    huyetAp: "",
+  });
+  const [isEditingChiSo, setIsEditingChiSo] = useState(false);
+
   // State accordion đợt khám
   const [expandedDotKham, setExpandedDotKham] = useState<string | null>(null);
 
@@ -213,7 +223,7 @@ const Khambenhdieutri: React.FC = () => {
             <Ionicons name="arrow-back" size={24} color={B.textTitle} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Khám bệnh & Điều trị</Text>
-          <TouchableOpacity style={styles.saveBtn}>
+          <TouchableOpacity onPress={() => router.replace('/Hosobenhan/Danhsachbenhnhan')} style={styles.saveBtn}>
             <Ionicons name="checkmark" size={24} color="#fff" />
           </TouchableOpacity>
         </View>
@@ -226,50 +236,81 @@ const Khambenhdieutri: React.FC = () => {
 
         {/* THÔNG TIN BỆNH NHÂN */}
         <View style={styles.section}>
-          <View style={styles.card}>
-            <View style={styles.compactPatientHeader}>
-              <View style={styles.avatarMedium}>
-                <Text style={styles.avatarMediumText}>
-                  {benhNhan.hoTen?.split(" ").slice(-1)[0]?.[0] || "BN"}
-                </Text>
+          <View style={styles.patientCard}>
+            {/* Row chính: Avatar + Info + Badges */}
+            <View style={styles.patientTopRow}>
+              <View style={styles.patientAvatarWrap}>
+                <View style={styles.patientAvatar}>
+                  <Text style={styles.patientAvatarText}>
+                    {benhNhan.hoTen?.split(" ").slice(-1)[0]?.[0] || "BN"}
+                  </Text>
+                </View>
+                <View style={[styles.patientGenderDot, {
+                  backgroundColor: benhNhan.gioiTinh === "Nam" ? "#3B82F6" : "#EC4899"
+                }]} />
               </View>
-              <View style={styles.compactPatientInfo}>
-                <Text style={styles.compactPatientName}>{benhNhan.hoTen}</Text>
-                <View style={styles.compactMeta}>
-                  <View
-                    style={[
-                      styles.genderBadge,
-                      {
-                        backgroundColor:
-                          benhNhan.gioiTinh === "Nam" ? "#DBEAFE" : "#FCE7F3",
-                      },
-                    ]}>
-                    <Ionicons
-                      name={benhNhan.gioiTinh === "Nam" ? "male" : "female"}
-                      size={10}
-                      color={
-                        benhNhan.gioiTinh === "Nam" ? "#1E40AF" : "#BE185D"
-                      }
-                    />
-                    <Text
-                      style={[
-                        styles.genderText,
-                        {
-                          color:
-                            benhNhan.gioiTinh === "Nam" ? "#1E40AF" : "#BE185D",
-                        },
-                      ]}>
+
+              <View style={styles.patientMainInfo}>
+                {/* Tên + giới tính */}
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                  <Text style={styles.patientName}>{benhNhan.hoTen}</Text>
+                  <View style={[styles.patientGenderBadge, {
+                    backgroundColor: benhNhan.gioiTinh === "Nam" ? "#DBEAFE" : "#FCE7F3",
+                  }]}>
+                    <Ionicons name={benhNhan.gioiTinh === "Nam" ? "male" : "female"} size={9} color={benhNhan.gioiTinh === "Nam" ? "#1E40AF" : "#BE185D"} />
+                    <Text style={[styles.patientGenderText, { color: benhNhan.gioiTinh === "Nam" ? "#1E40AF" : "#BE185D" }]}>
                       {benhNhan.gioiTinh}
                     </Text>
                   </View>
-                  <Text style={styles.compactInfoText}>
-                    {formatDate(benhNhan.ngaySinh)}
-                  </Text>
-                  <Text style={styles.compactInfoText}>
-                    {benhNhan.dienThoai}
-                  </Text>
+                </View>
+
+                {/* Thông tin phụ dạng inline */}
+                <View style={styles.patientMetaRow}>
+                  <Ionicons name="calendar-outline" size={11} color={B.textSub} />
+                  <Text style={styles.patientMetaText}>{formatDate(benhNhan.ngaySinh)}</Text>
+                  <Text style={styles.patientMetaDot}>·</Text>
+                  <Ionicons name="call-outline" size={11} color={B.textSub} />
+                  <Text style={styles.patientMetaText}>{benhNhan.dienThoai}</Text>
+                </View>
+                <View style={[styles.patientMetaRow, { marginTop: 2 }]}>
+                  <Ionicons name="location-outline" size={11} color={B.textSub} />
+                  <Text style={styles.patientMetaText} numberOfLines={1}>{benhNhan.diaChi}</Text>
                 </View>
               </View>
+            </View>
+
+            {/* Divider */}
+            <View style={styles.patientDivider} />
+
+            {/* 4 nút hành động dạng grid 2x2 */}
+            <View style={styles.patientActionGrid}>
+              <TouchableOpacity style={styles.patientActionBtn}>
+                <View style={[styles.patientActionIcon, { backgroundColor: "#EEF2FF" }]}>
+                  <Ionicons name="calendar" size={15} color="#4F46E5" />
+                </View>
+                <Text style={[styles.patientActionText, { color: "#4F46E5" }]}>Lịch hẹn</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.patientActionBtn}>
+                <View style={[styles.patientActionIcon, { backgroundColor: "#FFF7ED" }]}>
+                  <Ionicons name="images" size={15} color="#EA580C" />
+                </View>
+                <Text style={[styles.patientActionText, { color: "#EA580C" }]}>Film ảnh</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.patientActionBtn}>
+                <View style={[styles.patientActionIcon, { backgroundColor: "#F0FDF4" }]}>
+                  <Ionicons name="medkit" size={15} color="#16A34A" />
+                </View>
+                <Text style={[styles.patientActionText, { color: "#16A34A" }]}>Đơn thuốc</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.patientActionBtn}>
+                <View style={[styles.patientActionIcon, { backgroundColor: "#FEF9C3" }]}>
+                  <Ionicons name="receipt" size={15} color="#CA8A04" />
+                </View>
+                <Text style={[styles.patientActionText, { color: "#CA8A04" }]}>Xuất HĐ</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -279,6 +320,117 @@ const Khambenhdieutri: React.FC = () => {
           <View style={styles.sectionHeader}>
             <Ionicons name="medical" size={20} color={B.primary} />
             <Text style={styles.sectionTitle}>Chuẩn đoán & Thông tin</Text>
+          </View>
+
+          {/* ---- CHỈ SỐ SINH TỒN ---- */}
+          <View style={[styles.card, { marginBottom: 12 }]}>
+            <View style={styles.labelRow}>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                <Ionicons name="pulse-outline" size={16} color={B.primary} />
+                <Text style={styles.inputLabel}>Chỉ số sinh tồn</Text>
+              </View>
+              <TouchableOpacity
+                style={[styles.editTagBtn, isEditingChiSo && styles.editTagBtnActive]}
+                onPress={() => setIsEditingChiSo((v) => !v)}>
+                <Ionicons
+                  name={isEditingChiSo ? "checkmark-circle" : "create-outline"}
+                  size={15}
+                  color={isEditingChiSo ? B.success : B.primary}
+                />
+                <Text style={[styles.editTagBtnText, { color: isEditingChiSo ? B.success : B.primary }]}>
+                  {isEditingChiSo ? "Xong" : "Sửa"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {isEditingChiSo ? (
+              /* Chế độ sửa: hiện input */
+              <View>
+                <View style={styles.chiSoRow}>
+                  <View style={styles.chiSoCol3}>
+                    <Text style={styles.chiSoLabel}>Mạch (l/ph)</Text>
+                    <TextInput
+                      style={styles.chiSoInput}
+                      placeholder="75"
+                      keyboardType="numeric"
+                      value={chiSoSinhTon.mach}
+                      onChangeText={(v) => setChiSoSinhTon((p) => ({ ...p, mach: v }))}
+                    />
+                  </View>
+                  <View style={styles.chiSoCol3}>
+                    <Text style={styles.chiSoLabel}>Nhịp thở</Text>
+                    <TextInput
+                      style={styles.chiSoInput}
+                      placeholder="20"
+                      keyboardType="numeric"
+                      value={chiSoSinhTon.nhipTho}
+                      onChangeText={(v) => setChiSoSinhTon((p) => ({ ...p, nhipTho: v }))}
+                    />
+                  </View>
+                  <View style={styles.chiSoCol3}>
+                    <Text style={styles.chiSoLabel}>Nhiệt độ (°C)</Text>
+                    <TextInput
+                      style={styles.chiSoInput}
+                      placeholder="36.5"
+                      keyboardType="numeric"
+                      value={chiSoSinhTon.nhietDo}
+                      onChangeText={(v) => setChiSoSinhTon((p) => ({ ...p, nhietDo: v }))}
+                    />
+                  </View>
+                </View>
+                <View style={styles.chiSoRow}>
+                  <View style={[styles.chiSoCol3, { flex: 1.5 }]}>
+                    <Text style={styles.chiSoLabel}>Cân nặng (kg)</Text>
+                    <TextInput
+                      style={styles.chiSoInput}
+                      placeholder="60"
+                      keyboardType="numeric"
+                      value={chiSoSinhTon.canNang}
+                      onChangeText={(v) => setChiSoSinhTon((p) => ({ ...p, canNang: v }))}
+                    />
+                  </View>
+                  <View style={[styles.chiSoCol3, { flex: 1.5 }]}>
+                    <Text style={styles.chiSoLabel}>Huyết áp (mmHg)</Text>
+                    <TextInput
+                      style={styles.chiSoInput}
+                      placeholder="120/80"
+                      keyboardType="numeric"
+                      value={chiSoSinhTon.huyetAp}
+                      onChangeText={(v) => setChiSoSinhTon((p) => ({ ...p, huyetAp: v }))}
+                    />
+                  </View>
+                </View>
+              </View>
+            ) : (
+              /* Chế độ xem: hiển thị dạng *label: value */
+              <View style={styles.tienSuTextBox}>
+                {Object.values(chiSoSinhTon).every((v) => v === "") ? (
+                  <TouchableOpacity style={styles.emptyTagHint} onPress={() => setIsEditingChiSo(true)}>
+                    <Ionicons name="add-circle-outline" size={14} color={B.textSub} />
+                    <Text style={styles.emptyTagHintText}>Chưa có chỉ số sinh tồn, nhấn Sửa để thêm</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <Text style={styles.tienSuTextValue}>
+                    {[
+                      chiSoSinhTon.mach ? { label: "Mạch", value: `${chiSoSinhTon.mach} l/ph` } : null,
+                      chiSoSinhTon.nhipTho ? { label: "Nhịp thở", value: `${chiSoSinhTon.nhipTho}` } : null,
+                      chiSoSinhTon.nhietDo ? { label: "Nhiệt độ", value: `${chiSoSinhTon.nhietDo}°C` } : null,
+                      chiSoSinhTon.canNang ? { label: "Cân nặng", value: `${chiSoSinhTon.canNang} kg` } : null,
+                      chiSoSinhTon.huyetAp ? { label: "Huyết áp", value: `${chiSoSinhTon.huyetAp} mmHg` } : null,
+                    ]
+                      .filter(Boolean)
+                      .map((item, index, arr) => (
+                        <Text key={item!.label}>
+                          <Text style={styles.tienSuStar}>*</Text>
+                          <Text style={{ fontWeight: "600", color: B.textTitle }}>{item!.label}: </Text>
+                          <Text style={{ color: B.primary, fontWeight: "700" }}>{item!.value}</Text>
+                          {index < arr.length - 1 && <Text style={styles.tienSuComma}> ,  </Text>}
+                        </Text>
+                      ))}
+                  </Text>
+                )}
+              </View>
+            )}
           </View>
 
           <View style={styles.card}>
@@ -419,28 +571,31 @@ const Khambenhdieutri: React.FC = () => {
               return (
                 <View key={dotIndex} style={styles.dotKhamContainer}>
 
-                  {/* ── HEADER: Ngày khám + In đợt này ── */}
+                  {/* ── HEADER: Ngày khám + Các nút hành động ── */}
                   <View style={styles.ngayKhamHeader}>
                     <TouchableOpacity
                       style={styles.ngayKhamBadge}
                       onPress={() => toggleDotKham(dotKham.ngayKham)}
                       activeOpacity={0.7}>
                       <Ionicons name="calendar" size={14} color={B.primary} />
-                      <Text style={styles.ngayKhamText}>
-                        {formatDate(dotKham.ngayKham)}
-                      </Text>
-                      <Ionicons
-                        name={isExpanded ? "chevron-up" : "chevron-down"}
-                        size={14}
-                        color={B.primary}
-                      />
+                      <Text style={styles.ngayKhamText}>{formatDate(dotKham.ngayKham)}</Text>
+                      <Ionicons name={isExpanded ? "chevron-up" : "chevron-down"} size={14} color={B.primary} />
                     </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.btnInDotKham}
-                      onPress={() => handlePrintSingle(dotKham.ngayKham)}>
-                      <Ionicons name="print-outline" size={16} color={B.primary} />
-                      <Text style={styles.btnInDotKhamText}>In đợt này</Text>
-                    </TouchableOpacity>
+
+                    {/* Nhóm nút: In + Thanh toán */}
+                    <View style={styles.dotKhamActions}>
+                      <TouchableOpacity
+                        style={styles.btnInDotKham}
+                        onPress={() => handlePrintSingle(dotKham.ngayKham)}>
+                        <Ionicons name="print-outline" size={14} color={B.primary} />
+                        <Text style={styles.btnInDotKhamText}>In</Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity style={styles.btnThanhToanDot}>
+                        <Ionicons name="card-outline" size={14} color="#fff" />
+                        <Text style={styles.btnThanhToanDotText}>Thanh toán</Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
 
                   {/* ── BẢNG DỊCH VỤ: chỉ hiện khi expand ── */}
@@ -664,7 +819,7 @@ const Khambenhdieutri: React.FC = () => {
                 <View style={styles.invoiceTitleContainer}>
                   <Text style={styles.invoiceMainTitle}>
                     {printType === "single"
-                      ? "PHIẾU THANH TOÁN DỊCH VỤ"
+                      ? "PHIẾU KHÁM BỆNH VÀ ĐIỀU TRỊ"
                       : "HỒ SƠ KHÁM VÀ ĐIỀU TRỊ"}
                   </Text>
                   {printType === "single" && (
@@ -676,7 +831,7 @@ const Khambenhdieutri: React.FC = () => {
 
                 {/* Thông tin bệnh nhân */}
                 <View style={styles.invoicePatientBox}>
-                  {/* Tên bệnh nhân nổi bật */}
+                  {/* Hàng 1: Avatar + Tên + Meta */}
                   <View style={styles.invPatientNameRow}>
                     <View style={styles.invPatientAvatar}>
                       <Text style={styles.invPatientAvatarText}>
@@ -684,66 +839,87 @@ const Khambenhdieutri: React.FC = () => {
                       </Text>
                     </View>
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.invPatientName}>{benhNhan.hoTen}</Text>
-                      <View style={styles.invPatientBadgeRow}>
+                      <View style={{ flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 3 }}>
+                        <Text style={styles.invPatientName}>{benhNhan.hoTen}</Text>
                         <View style={[styles.invGenderBadge, {
                           backgroundColor: benhNhan.gioiTinh === "Nam" ? "#DBEAFE" : "#FCE7F3"
                         }]}>
-                          <Ionicons
-                            name={benhNhan.gioiTinh === "Nam" ? "male" : "female"}
-                            size={10}
-                            color={benhNhan.gioiTinh === "Nam" ? "#1E40AF" : "#BE185D"}
-                          />
-                          <Text style={[styles.invGenderText, {
-                            color: benhNhan.gioiTinh === "Nam" ? "#1E40AF" : "#BE185D"
-                          }]}>
-                            {benhNhan.gioiTinh}
-                          </Text>
+                          <Ionicons name={benhNhan.gioiTinh === "Nam" ? "male" : "female"} size={9} color={benhNhan.gioiTinh === "Nam" ? "#1E40AF" : "#BE185D"} />
+                          <Text style={[styles.invGenderText, { color: benhNhan.gioiTinh === "Nam" ? "#1E40AF" : "#BE185D" }]}>{benhNhan.gioiTinh}</Text>
                         </View>
                       </View>
+                      <Text style={styles.invPatientMeta}>
+                        📅 {formatDate(benhNhan.ngaySinh)}  ·  📞 {benhNhan.dienThoai}  ·  📍 {benhNhan.diaChi}
+                      </Text>
                     </View>
                   </View>
 
                   <View style={styles.invDividerLight} />
 
-                  {/* Grid thông tin */}
-                  <View style={styles.invInfoGrid}>
-                    <View style={styles.invInfoItem}>
-                      <Text style={styles.invInfoLabel}>Ngày sinh</Text>
-                      <Text style={styles.invInfoValue}>{formatDate(benhNhan.ngaySinh)}</Text>
-                    </View>
-                    <View style={styles.invInfoItem}>
-                      <Text style={styles.invInfoLabel}>Điện thoại</Text>
-                      <Text style={styles.invInfoValue}>{benhNhan.dienThoai}</Text>
-                    </View>
-                    <View style={[styles.invInfoItem, { flex: 2 }]}>
-                      <Text style={styles.invInfoLabel}>Địa chỉ</Text>
-                      <Text style={styles.invInfoValue}>{benhNhan.diaChi}</Text>
-                    </View>
+                  {/* Hàng 2: Tiền sử + Chẩn đoán */}
+                  <View style={styles.invInfoCompactRow}>
+                    {tienSuBenh.length > 0 && (
+                      <View style={styles.invInfoCompactItem}>
+                        <Text style={styles.invInfoLabel}>Tiền sử: </Text>
+                        <Text style={[styles.invInfoValue, { flex: 1 }]}>
+                          {tienSuBenh.map((l, i) => (
+                            <Text key={l}>
+                              <Text style={{ color: B.primary, fontWeight: "700" }}>*</Text>
+                              {l}{i < tienSuBenh.length - 1 ? "  " : ""}
+                            </Text>
+                          ))}
+                        </Text>
+                      </View>
+                    )}
+                    {chuanDoan ? (
+                      <View style={styles.invInfoCompactItem}>
+                        <Text style={styles.invInfoLabel}>Chẩn đoán: </Text>
+                        <Text style={[styles.invInfoValue, { flex: 1, color: B.primary }]}>{chuanDoan}</Text>
+                      </View>
+                    ) : null}
                   </View>
 
-                  {tienSuBenh.length > 0 && (
-                    <View style={styles.invInfoRow}>
-                      <Text style={styles.invInfoLabel}>Tiền sử bệnh: </Text>
-                      <Text style={[styles.invInfoValue, { flex: 1 }]}>
-                        {tienSuBenh.map((l, i) => (
-                          <Text key={l}>
-                            <Text style={{ color: B.primary, fontWeight: "700" }}>*</Text>
-                            {l}{i < tienSuBenh.length - 1 ? "  " : ""}
-                          </Text>
-                        ))}
-                      </Text>
-                    </View>
+                  {/* Hàng 3: Chỉ số sinh tồn */}
+                  {Object.values(chiSoSinhTon).some((v) => v !== "") && (
+                    <>
+                      <View style={styles.invDividerLight} />
+                      <View style={styles.invVitalRow}>
+                        <Text style={[styles.invInfoLabel, { marginRight: 6 }]}>Sinh tồn:</Text>
+                        <View style={styles.invVitalGrid}>
+                          {chiSoSinhTon.mach ? (
+                            <View style={styles.invVitalChip}>
+                              <Ionicons name="pulse" size={10} color={B.primary} />
+                              <Text style={styles.invVitalText}>{chiSoSinhTon.mach} l/ph</Text>
+                            </View>
+                          ) : null}
+                          {chiSoSinhTon.nhipTho ? (
+                            <View style={styles.invVitalChip}>
+                              <Ionicons name="water-outline" size={10} color="#0EA5E9" />
+                              <Text style={styles.invVitalText}>{chiSoSinhTon.nhipTho} nhịp/ph</Text>
+                            </View>
+                          ) : null}
+                          {chiSoSinhTon.nhietDo ? (
+                            <View style={styles.invVitalChip}>
+                              <Ionicons name="thermometer" size={10} color="#F59E0B" />
+                              <Text style={styles.invVitalText}>{chiSoSinhTon.nhietDo}°C</Text>
+                            </View>
+                          ) : null}
+                          {chiSoSinhTon.canNang ? (
+                            <View style={styles.invVitalChip}>
+                              <Ionicons name="barbell" size={10} color="#8B5CF6" />
+                              <Text style={styles.invVitalText}>{chiSoSinhTon.canNang} kg</Text>
+                            </View>
+                          ) : null}
+                          {chiSoSinhTon.huyetAp ? (
+                            <View style={styles.invVitalChip}>
+                              <Ionicons name="heart" size={10} color="#EF4444" />
+                              <Text style={styles.invVitalText}>{chiSoSinhTon.huyetAp} mmHg</Text>
+                            </View>
+                          ) : null}
+                        </View>
+                      </View>
+                    </>
                   )}
-
-                  {chuanDoan ? (
-                    <View style={[styles.invInfoRow, { marginTop: 4 }]}>
-                      <Text style={styles.invInfoLabel}>Chẩn đoán: </Text>
-                      <Text style={[styles.invInfoValue, { flex: 1, color: B.primary, fontWeight: "600" }]}>
-                        {chuanDoan}
-                      </Text>
-                    </View>
-                  ) : null}
                 </View>
 
                 {/* Danh sách Dịch vụ/Thủ thuật */}
@@ -986,7 +1162,91 @@ const styles = StyleSheet.create({
     }),
   },
 
-  // Patient Info
+  // Patient Card compact
+  patientCard: {
+    backgroundColor: B.white,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: B.border,
+    overflow: "hidden",
+    ...Platform.select({
+      ios: { shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: 6 },
+      android: { elevation: 3 },
+    }),
+  },
+  patientTopRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    gap: 10,
+  },
+  patientAvatarWrap: { position: "relative" },
+  patientAvatar: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: B.primary,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  patientAvatarText: { color: "#fff", fontSize: 19, fontWeight: "800" },
+  patientGenderDot: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    width: 13,
+    height: 13,
+    borderRadius: 7,
+    borderWidth: 2,
+    borderColor: B.white,
+  },
+  patientMainInfo: { flex: 1 },
+  patientName: { fontSize: 15, fontWeight: "800", color: B.textTitle },
+  patientGenderBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 2,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 5,
+  },
+  patientGenderText: { fontSize: 10, fontWeight: "700" },
+  patientMetaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    flexWrap: "wrap",
+  },
+  patientMetaText: { fontSize: 11, color: B.textSub, fontWeight: "500" },
+  patientMetaDot: { fontSize: 11, color: B.border, fontWeight: "700" },
+  patientDivider: { height: 1, backgroundColor: "#F1F5F9" },
+
+  // 4-button grid
+  patientActionGrid: {
+    flexDirection: "row",
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    gap: 4,
+  },
+  patientActionBtn: {
+    flex: 1,
+    alignItems: "center",
+    gap: 4,
+    paddingVertical: 8,
+    borderRadius: 10,
+    backgroundColor: "#FAFAFA",
+  },
+  patientActionIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  patientActionText: { fontSize: 10, fontWeight: "700", textAlign: "center" },
+
+  // Patient Info (legacy - kept for compat)
   compactPatientHeader: { flexDirection: "row", alignItems: "center", gap: 10 },
   avatarMedium: {
     width: 48,
@@ -1100,6 +1360,33 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 
+  // Chỉ số sinh tồn
+  chiSoRow: {
+    flexDirection: "row",
+    gap: 8,
+    marginBottom: 10,
+  },
+  chiSoCol3: {
+    flex: 1,
+  },
+  chiSoLabel: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: B.textSub,
+    marginBottom: 4,
+  },
+  chiSoInput: {
+    borderWidth: 1,
+    borderColor: B.border,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    fontSize: 13,
+    color: B.textTitle,
+    backgroundColor: "#FAFAFA",
+    fontWeight: "600",
+  },
+
   tienSuTextBox: {
     paddingVertical: 6,
     marginBottom: 4,
@@ -1174,6 +1461,8 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   ngayKhamText: { fontSize: 13, fontWeight: "700", color: B.primary },
+  // Nhóm nút hành động đợt khám
+  dotKhamActions: { flexDirection: "row", alignItems: "center", gap: 8 },
   btnInDotKham: {
     flexDirection: "row",
     alignItems: "center",
@@ -1183,8 +1472,20 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: B.primary,
+    backgroundColor: B.white,
   },
   btnInDotKhamText: { fontSize: 12, fontWeight: "600", color: B.primary },
+  btnThanhToanDot: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    backgroundColor: B.success,
+  },
+  btnThanhToanDotText: { fontSize: 12, fontWeight: "600", color: "#fff" },
+
   dotKhamDivider: { height: 2, backgroundColor: B.border, marginVertical: 16 },
 
   tableContainer: { borderRadius: 8, overflow: "hidden" },
@@ -1469,6 +1770,50 @@ const styles = StyleSheet.create({
   },
   invTd: { fontSize: 12, color: B.textTitle },
 
+
+  invPatientMeta: {
+    fontSize: 11,
+    color: B.textSub,
+    fontWeight: "500",
+    lineHeight: 16,
+  },
+  invInfoCompactRow: {
+    gap: 4,
+    marginTop: 2,
+  },
+  invInfoCompactItem: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    flexWrap: "wrap",
+  },
+  invVitalRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginTop: 2,
+    flexWrap: "wrap",
+  },
+  invVitalGrid: {
+    flex: 1,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 5,
+  },
+  invVitalChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 3,
+    backgroundColor: "#F1F5F9",
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: B.border,
+  },
+  invVitalText: {
+    fontSize: 10,
+    color: B.textTitle,
+    fontWeight: "600",
+  },
 
   // Invoice patient info redesign
   invPatientNameRow: {

@@ -51,12 +51,12 @@ const B = {
 const ROUTES: Record<string, string> = {
   "Đăng ký khám bệnh": "/Hosobenhan/Benhnhan",
   "Danh sách bệnh nhân": "/Hosobenhan/Danhsachbenhnhan",
-  "Danh sách kê đơn thuốc": "/prescription",
-  "Danh sách lịch hẹn": "/appointment",
-  "Phiếu thu": "/receipt",
-  "Phiếu chi": "/payment",
-  "Nhóm thủ thuật": "/procedure-group",
-  "Thuốc - mẫu đơn thuốc": "/medicine",
+  "Danh sách kê đơn thuốc": "/Donthuoc/Donthuocbn",
+  "Danh sách lịch hẹn": "/Lichhen/Lichhenbn",
+  "Phiếu thu": "/ThuChi/Ds_phieuthu",
+  "Phiếu chi": "/ThuChi/Ds_phieuchi",
+  "Nhóm thủ thuật": "/DanhMuc/Nhomthuthuat",
+  "Thuốc - mẫu đơn thuốc": "/DanhMuc/Thuoc_Maudonthuoc",
   "Kho thuốc": "/warehouse",
   "Nhóm thuốc": "/drug-group",
   "Các khoản thu": "/income",
@@ -159,9 +159,9 @@ const QUICK_ACTIONS = [
     title: "Lịch hẹn",
     icon: "calendar",
     color: "#F59E0B",
-    route: "/appointment",
+    route: "/Lichhen/Lichhenbn", // Đã cập nhật đường dẫn mới
   },
-  { title: "Phiếu thu", icon: "wallet", color: "#F43F5E", route: "/receipt" },
+  { title: "Phiếu thu", icon: "wallet", color: "#F43F5E", route: "/ThuChi/Ds_phieuthu" },
 ];
 
 const AnimatedNumber = ({ value, color, fontSize = 20 }: any) => {

@@ -47,8 +47,8 @@ const Danhsachbenhnhan: React.FC = () => {
   const [permission, requestPermission] = useCameraPermissions();
   
   const [danhSachBenhNhan, setDanhSachBenhNhan] = useState<BenhNhan[]>([
-    { id: 1, hoTen: 'NGUYỄN VĂN AN', ngaySinh: '1985-03-15', gioiTinh: 'Nam', dienThoai: '0912345678', soCCCD: '001085012345', diaChi: 'Hà Nội', ngayKham: '2026-03-19' },
-    { id: 2, hoTen: 'TRẦN THỊ BÌNH', ngaySinh: '1990-07-20', gioiTinh: 'Nữ', dienThoai: '0987654321', soCCCD: '001090067890', diaChi: 'TP. Hồ Chí Minh', ngayKham: '2026-03-19' },
+    { id: 1, hoTen: 'NGUYỄN VĂN AN', ngaySinh: '1985-03-15', gioiTinh: 'Nam', dienThoai: '0912345678', soCCCD: '001085012345', diaChi: 'Hà Nội', ngayKham: '2026-03-20' },
+    { id: 2, hoTen: 'TRẦN THỊ BÌNH', ngaySinh: '1990-07-20', gioiTinh: 'Nữ', dienThoai: '0987654321', soCCCD: '001090067890', diaChi: 'TP. Hồ Chí Minh', ngayKham: '2026-03-20' },
   ]);
 
   const [tuNgay, setTuNgay] = useState('');
