@@ -71,10 +71,11 @@ const ROUTES: Record<string, string> = {
   "Báo cáo thủ thuật theo bác sĩ": "/Baocaotonghop/Baocaothuthuattheobacsi",
   "Danh sách bệnh nhân nợ tiền": "/Baocaotonghop/Danhsachbenhnhannotien",
   "Báo cáo tổng hợp thu chi": "/Baocaotonghop/Baocaothuchi",
-  "Quản lý nhân viên": "/staff",
-  "Phân quyền chức năng": "/permission",
-  "Gửi email tự động": "/email",
-  "Đăng ký bản quyền": "/license",
+  "Quản lý nhân viên": "/HeThong/Quanlynhanvien",
+  "Phân quyền chức năng": "/HeThong/Phanquyenchucnang",
+  "Gửi email tự động": "/HeThong/Guiemailtudong",
+  "Đăng ký bản quyền": "/HeThong/Dangkybanquyen",
+  "Thông tin sản phẩm": "/Thongtinsanpham",
 };
 
 // 1. DATA ĐÃ SẮP XẾP THEO TRÌNH TỰ: Hồ sơ bệnh nhân -> Danh mục -> Kho thuốc -> Báo cáo -> Hệ thống
@@ -138,6 +139,14 @@ const DATA = [
       { title: "Phân quyền chức năng", icon: "shield-half-outline" },
       { title: "Gửi email tự động", icon: "mail-open-outline" },
       { title: "Đăng ký bản quyền", icon: "ribbon-outline" },
+    ],
+  },
+  {
+    title: "Thông tin sản phẩm",
+    icon: "information-circle-sharp",
+    color: "#8B5CF6",
+    items: [
+      { title: "Thông tin sản phẩm", icon: "information-circle-outline" },
     ],
   },
 ];

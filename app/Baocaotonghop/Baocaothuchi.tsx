@@ -1,18 +1,19 @@
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-  TextInput,
-  StatusBar,
-  Platform,
   Alert,
+  Modal,
+  Platform,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
 
 const B = {
   primary: "#8A1930",
@@ -55,6 +56,7 @@ export default function Baocaothuchi() {
   const router = useRouter();
   const [tuNgay, setTuNgay] = useState(getCurrentDate());
   const [denNgay, setDenNgay] = useState(getCurrentDate());
+  const [printModalVisible, setPrintModalVisible] = useState(false);
 
   const today = getCurrentDate();
 
@@ -127,6 +129,13 @@ export default function Baocaothuchi() {
       ngay: today,
       soTien: 2500000,
     },
+    {
+      id: 2,
+      tenKhoan: "Tiền điện tháng 4",
+      nguoiChi: "Kế toán Hạnh 123",
+      ngay: today,
+      soTien: 2500000,
+    },
   ];
 
   const [dataFiltered, setDataFiltered] = useState({
@@ -164,7 +173,10 @@ export default function Baocaothuchi() {
     const to = toDateValue(denNgay);
 
     if (Number.isNaN(from) || Number.isNaN(to)) {
-      Alert.alert("Thông báo", "Định dạng ngày không hợp lệ. Vui lòng nhập YYYY-MM-DD.");
+      Alert.alert(
+        "Thông báo",
+        "Định dạng ngày không hợp lệ. Vui lòng nhập YYYY-MM-DD.",
+      );
       return;
     }
 
@@ -244,6 +256,11 @@ export default function Baocaothuchi() {
             <Text style={s.headerTitle}>Báo cáo Thu - Chi</Text>
             <Text style={s.headerSub}>Chi tiết dòng tiền hệ thống</Text>
           </View>
+          <TouchableOpacity
+            style={s.addBtn}
+            onPress={() => setPrintModalVisible(true)}>
+            <Ionicons name="print-outline" size={20} color="#fff" />
+          </TouchableOpacity>
         </View>
       </SafeAreaView>
 
@@ -298,8 +315,7 @@ export default function Baocaothuchi() {
             style={[
               s.summaryCard,
               { backgroundColor: "#ECFDF5", borderColor: "#10B98130" },
-            ]}
-          >
+            ]}>
             <Text style={[s.summaryLabel, { color: B.success }]}>TỔNG THU</Text>
             <Text style={[s.summaryVal, { color: B.success }]}>
               {fmtMoney(tongThu)}
@@ -310,8 +326,7 @@ export default function Baocaothuchi() {
             style={[
               s.summaryCard,
               { backgroundColor: "#FEF2F2", borderColor: "#EF444430" },
-            ]}
-          >
+            ]}>
             <Text style={[s.summaryLabel, { color: B.danger }]}>TỔNG CHI</Text>
             <Text style={[s.summaryVal, { color: B.danger }]}>
               {fmtMoney(tongChi)}
@@ -326,10 +341,10 @@ export default function Baocaothuchi() {
                 borderColor: "#3B82F630",
                 width: "100%",
               },
-            ]}
-          >
+            ]}>
             <View style={s.conLaiRow}>
-              <Text style={[s.summaryLabel, { color: B.info, marginBottom: 0 }]}>
+              <Text
+                style={[s.summaryLabel, { color: B.info, marginBottom: 0 }]}>
                 CÒN LẠI (THU - CHI)
               </Text>
               <Text style={[s.summaryVal, { color: B.info, fontSize: 18 }]}>
@@ -352,193 +367,183 @@ export default function Baocaothuchi() {
         {/* Thu tiền khám */}
         <View style={s.card}>
           <Text style={s.cardTitle}>1. Thu tiền khám bệnh</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={true}>
+          {dataFiltered.thuKhamBenh.length > 0 ? (
             <View>
-              <TableHeader
-                cols={[
-                  "STT",
-                  "Tên bệnh nhân",
-                  "Địa chỉ",
-                  "Ngày thu",
-                  "Tiền mặt",
-                  "Chuyển khoản",
-                ]}
-                widths={[40, 150, 120, 100, 100, 100]}
-              />
               {dataFiltered.thuKhamBenh.map((item, idx) => (
-                <View key={item.id} style={s.tableRow}>
-                  <Text style={[s.cell, { width: 40 }]}>{idx + 1}</Text>
-                  <Text
-                    style={[
-                      s.cell,
-                      { width: 150, fontWeight: "700", textAlign: "left" },
-                    ]}
-                  >
-                    {item.tenBN}
-                  </Text>
-                  <Text style={[s.cell, { width: 120, textAlign: "left" }]}>
-                    {item.diaChi}
-                  </Text>
-                  <Text style={[s.cell, { width: 100 }]}>{fmtDate(item.ngay)}</Text>
-                  <Text
-                    style={[
-                      s.cell,
-                      { width: 100, color: B.success, fontWeight: "600" },
-                    ]}
-                  >
-                    {fmtMoney(item.tienMat)}
-                  </Text>
-                  <Text
-                    style={[
-                      s.cell,
-                      { width: 100, color: B.info, fontWeight: "600" },
-                    ]}
-                  >
-                    {fmtMoney(item.chuyenKhoan)}
-                  </Text>
+                <View key={item.id} style={s.dataItem}>
+                  <View style={s.dataItemHeader}>
+                    <View style={s.dataItemNum}>
+                      <Text style={s.dataItemNumTxt}>{idx + 1}</Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={s.dataItemName}>{item.tenBN}</Text>
+                      <Text style={s.dataItemSub}>{item.diaChi}</Text>
+                    </View>
+                    <Text style={s.dataItemDate}>{fmtDate(item.ngay)}</Text>
+                  </View>
+                  <View style={s.dataItemMoney}>
+                    <View style={s.dataMoneyCol}>
+                      <Text style={s.dataMoneyLabel}>Tiền mặt</Text>
+                      <Text style={[s.dataMoneyVal, { color: B.success }]}>
+                        {fmtMoney(item.tienMat)}
+                      </Text>
+                    </View>
+                    <View style={s.dataMoneyCol}>
+                      <Text style={s.dataMoneyLabel}>CK</Text>
+                      <Text style={[s.dataMoneyVal, { color: B.info }]}>
+                        {fmtMoney(item.chuyenKhoan)}
+                      </Text>
+                    </View>
+                    <View
+                      style={[
+                        s.dataMoneyCol,
+                        {
+                          borderLeftWidth: 1,
+                          borderLeftColor: B.border,
+                          paddingLeft: 8,
+                        },
+                      ]}>
+                      <Text style={s.dataMoneyLabel}>Tổng</Text>
+                      <Text style={[s.dataMoneyVal, { color: B.primary }]}>
+                        {fmtMoney(item.tienMat + item.chuyenKhoan)}
+                      </Text>
+                    </View>
+                  </View>
                 </View>
               ))}
+              <View style={s.cardFooterBox}>
+                <View style={s.moneyBox}>
+                  <Text style={s.moneyLabel}>Tiền mặt</Text>
+                  <Text style={[s.moneyValue, { color: B.success }]}>
+                    {fmtMoney(tongThuKhamMat)}
+                  </Text>
+                </View>
+                <View style={s.moneyBox}>
+                  <Text style={s.moneyLabel}>CK</Text>
+                  <Text style={[s.moneyValue, { color: B.info }]}>
+                    {fmtMoney(tongThuKhamCK)}
+                  </Text>
+                </View>
+                <View style={s.moneyBox}>
+                  <Text style={s.moneyLabel}>Tổng</Text>
+                  <Text style={[s.moneyValue, { color: B.primary }]}>
+                    {fmtMoney(tongThuKham)}
+                  </Text>
+                </View>
+              </View>
             </View>
-          </ScrollView>
-
-          <View style={s.cardFooterBox}>
-            <View style={s.moneyBox}>
-              <Text style={s.moneyLabel}>Tiền mặt</Text>
-              <Text style={[s.moneyValue, { color: B.success }]}>
-                {fmtMoney(tongThuKhamMat)}
-              </Text>
-            </View>
-
-            <View style={s.moneyBox}>
-              <Text style={s.moneyLabel}>CK</Text>
-              <Text style={[s.moneyValue, { color: B.info }]}>
-                {fmtMoney(tongThuKhamCK)}
-              </Text>
-            </View>
-
-            <View style={s.moneyBox}>
-              <Text style={s.moneyLabel}>Tổng</Text>
-              <Text style={[s.moneyValue, { color: B.primary }]}>
-                {fmtMoney(tongThuKham)}
-              </Text>
-            </View>
-          </View>
+          ) : (
+            <Text style={s.emptyText}>Không có dữ liệu</Text>
+          )}
         </View>
 
         {/* Thu tiền thuốc */}
         <View style={s.card}>
           <Text style={s.cardTitle}>2. Thu tiền bán thuốc</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={true}>
+          {dataFiltered.thuBanThuoc.length > 0 ? (
             <View>
-              <TableHeader
-                cols={[
-                  "STT",
-                  "Tên bệnh nhân",
-                  "Địa chỉ",
-                  "Ngày thu",
-                  "Tiền mặt",
-                  "Chuyển khoản",
-                ]}
-                widths={[40, 150, 120, 100, 100, 100]}
-              />
               {dataFiltered.thuBanThuoc.map((item, idx) => (
-                <View key={item.id} style={s.tableRow}>
-                  <Text style={[s.cell, { width: 40 }]}>{idx + 1}</Text>
-                  <Text
-                    style={[
-                      s.cell,
-                      { width: 150, fontWeight: "700", textAlign: "left" },
-                    ]}
-                  >
-                    {item.tenBN}
-                  </Text>
-                  <Text style={[s.cell, { width: 120, textAlign: "left" }]}>
-                    {item.diaChi}
-                  </Text>
-                  <Text style={[s.cell, { width: 100 }]}>{fmtDate(item.ngay)}</Text>
-                  <Text
-                    style={[
-                      s.cell,
-                      { width: 100, color: B.success, fontWeight: "600" },
-                    ]}
-                  >
-                    {fmtMoney(item.tienMat)}
-                  </Text>
-                  <Text
-                    style={[
-                      s.cell,
-                      { width: 100, color: B.info, fontWeight: "600" },
-                    ]}
-                  >
-                    {fmtMoney(item.chuyenKhoan)}
-                  </Text>
+                <View key={item.id} style={s.dataItem}>
+                  <View style={s.dataItemHeader}>
+                    <View style={s.dataItemNum}>
+                      <Text style={s.dataItemNumTxt}>{idx + 1}</Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={s.dataItemName}>{item.tenBN}</Text>
+                      <Text style={s.dataItemSub}>{item.diaChi}</Text>
+                    </View>
+                    <Text style={s.dataItemDate}>{fmtDate(item.ngay)}</Text>
+                  </View>
+                  <View style={s.dataItemMoney}>
+                    <View style={s.dataMoneyCol}>
+                      <Text style={s.dataMoneyLabel}>Tiền mặt</Text>
+                      <Text style={[s.dataMoneyVal, { color: B.success }]}>
+                        {fmtMoney(item.tienMat)}
+                      </Text>
+                    </View>
+                    <View style={s.dataMoneyCol}>
+                      <Text style={s.dataMoneyLabel}>CK</Text>
+                      <Text style={[s.dataMoneyVal, { color: B.info }]}>
+                        {fmtMoney(item.chuyenKhoan)}
+                      </Text>
+                    </View>
+                    <View
+                      style={[
+                        s.dataMoneyCol,
+                        {
+                          borderLeftWidth: 1,
+                          borderLeftColor: B.border,
+                          paddingLeft: 8,
+                        },
+                      ]}>
+                      <Text style={s.dataMoneyLabel}>Tổng</Text>
+                      <Text style={[s.dataMoneyVal, { color: B.primary }]}>
+                        {fmtMoney(item.tienMat + item.chuyenKhoan)}
+                      </Text>
+                    </View>
+                  </View>
                 </View>
               ))}
+              <View style={s.cardFooterBox}>
+                <View style={s.moneyBox}>
+                  <Text style={s.moneyLabel}>Tiền mặt</Text>
+                  <Text style={[s.moneyValue, { color: B.success }]}>
+                    {fmtMoney(tongThuThuocMat)}
+                  </Text>
+                </View>
+                <View style={s.moneyBox}>
+                  <Text style={s.moneyLabel}>CK</Text>
+                  <Text style={[s.moneyValue, { color: B.info }]}>
+                    {fmtMoney(tongThuThuocCK)}
+                  </Text>
+                </View>
+                <View style={s.moneyBox}>
+                  <Text style={s.moneyLabel}>Tổng</Text>
+                  <Text style={[s.moneyValue, { color: B.primary }]}>
+                    {fmtMoney(tongThuThuoc)}
+                  </Text>
+                </View>
+              </View>
             </View>
-          </ScrollView>
-
-          <View style={s.cardFooterBox}>
-            <View style={s.moneyBox}>
-              <Text style={s.moneyLabel}>Tiền mặt</Text>
-              <Text style={[s.moneyValue, { color: B.success }]}>
-                {fmtMoney(tongThuThuocMat)}
-              </Text>
-            </View>
-
-            <View style={s.moneyBox}>
-              <Text style={s.moneyLabel}>CK</Text>
-              <Text style={[s.moneyValue, { color: B.info }]}>
-                {fmtMoney(tongThuThuocCK)}
-              </Text>
-            </View>
-
-            <View style={s.moneyBox}>
-              <Text style={s.moneyLabel}>Tổng</Text>
-              <Text style={[s.moneyValue, { color: B.primary }]}>
-                {fmtMoney(tongThuThuoc)}
-              </Text>
-            </View>
-          </View>
+          ) : (
+            <Text style={s.emptyText}>Không có dữ liệu</Text>
+          )}
         </View>
 
         {/* Thu khác */}
         <View style={s.card}>
           <Text style={s.cardTitle}>3. Khoản thu khác</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={true}>
+          {dataFiltered.thuKhac.length > 0 ? (
             <View>
-              <TableHeader
-                cols={["STT", "Tên khoản thu", "Người thu", "Ngày thu", "Số tiền"]}
-                widths={[40, 180, 120, 100, 120]}
-              />
               {dataFiltered.thuKhac.map((item, idx) => (
-                <View key={item.id} style={s.tableRow}>
-                  <Text style={[s.cell, { width: 40 }]}>{idx + 1}</Text>
-                  <Text
-                    style={[
-                      s.cell,
-                      { width: 180, textAlign: "left", fontWeight: "600" },
-                    ]}
-                  >
-                    {item.tenKhoan}
-                  </Text>
-                  <Text style={[s.cell, { width: 120 }]}>{item.nguoiThu}</Text>
-                  <Text style={[s.cell, { width: 100 }]}>{fmtDate(item.ngay)}</Text>
-                  <Text
-                    style={[
-                      s.cell,
-                      { width: 120, fontWeight: "700", color: B.success },
-                    ]}
-                  >
-                    {fmtMoney(item.soTien)}
-                  </Text>
+                <View key={item.id} style={s.dataItem}>
+                  <View style={s.dataItemHeader}>
+                    <View style={s.dataItemNum}>
+                      <Text style={s.dataItemNumTxt}>{idx + 1}</Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={s.dataItemName}>{item.tenKhoan}</Text>
+                      <Text style={s.dataItemSub}>{item.nguoiThu}</Text>
+                    </View>
+                    <Text style={s.dataItemDate}>{fmtDate(item.ngay)}</Text>
+                  </View>
+                  <View style={s.dataItemMoneySimple}>
+                    <Text style={s.dataMoneyLabel}>Số tiền</Text>
+                    <Text style={[s.dataMoneyVal, { color: B.success }]}>
+                      {fmtMoney(item.soTien)}
+                    </Text>
+                  </View>
                 </View>
               ))}
+              <View style={s.cardFooter}>
+                <Text style={s.footerTotal}>
+                  Tổng thu khác: {fmtMoney(tongThuKhac)}
+                </Text>
+              </View>
             </View>
-          </ScrollView>
-
-          <View style={s.cardFooter}>
-            <Text style={s.footerTotal}>Tổng thu khác: {fmtMoney(tongThuKhac)}</Text>
-          </View>
+          ) : (
+            <Text style={s.emptyText}>Không có dữ liệu</Text>
+          )}
         </View>
 
         {/* II. KHOẢN CHI */}
@@ -546,7 +551,9 @@ export default function Baocaothuchi() {
           <View style={[s.groupIcon, { backgroundColor: B.danger }]}>
             <Ionicons name="trending-down" size={16} color="#fff" />
           </View>
-          <Text style={[s.groupTitle, { color: B.danger }]}>II. CÁC KHOẢN CHI</Text>
+          <Text style={[s.groupTitle, { color: B.danger }]}>
+            II. CÁC KHOẢN CHI
+          </Text>
         </View>
 
         {/* Chi NCC */}
@@ -554,45 +561,37 @@ export default function Baocaothuchi() {
           <Text style={[s.cardTitle, { color: B.danger }]}>
             1. Chi cho nhà cung cấp
           </Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={true}>
+          {dataFiltered.chiNCC.length > 0 ? (
             <View>
-              <TableHeader
-                cols={["STT", "Tên NCC", "Địa chỉ", "Ngày chi", "Số tiền"]}
-                widths={[40, 180, 150, 100, 120]}
-              />
               {dataFiltered.chiNCC.map((item, idx) => (
-                <View key={item.id} style={s.tableRow}>
-                  <Text style={[s.cell, { width: 40 }]}>{idx + 1}</Text>
-                  <Text
-                    style={[
-                      s.cell,
-                      { width: 180, textAlign: "left", fontWeight: "600" },
-                    ]}
-                  >
-                    {item.tenNCC}
-                  </Text>
-                  <Text style={[s.cell, { width: 150, textAlign: "left" }]}>
-                    {item.diaChi}
-                  </Text>
-                  <Text style={[s.cell, { width: 100 }]}>{fmtDate(item.ngay)}</Text>
-                  <Text
-                    style={[
-                      s.cell,
-                      { width: 120, fontWeight: "700", color: B.danger },
-                    ]}
-                  >
-                    {fmtMoney(item.soTien)}
-                  </Text>
+                <View key={item.id} style={s.dataItem}>
+                  <View style={s.dataItemHeader}>
+                    <View style={s.dataItemNum}>
+                      <Text style={s.dataItemNumTxt}>{idx + 1}</Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={s.dataItemName}>{item.tenNCC}</Text>
+                      <Text style={s.dataItemSub}>{item.diaChi}</Text>
+                    </View>
+                    <Text style={s.dataItemDate}>{fmtDate(item.ngay)}</Text>
+                  </View>
+                  <View style={s.dataItemMoneySimple}>
+                    <Text style={s.dataMoneyLabel}>Số tiền</Text>
+                    <Text style={[s.dataMoneyVal, { color: B.danger }]}>
+                      {fmtMoney(item.soTien)}
+                    </Text>
+                  </View>
                 </View>
               ))}
+              <View style={s.cardFooter}>
+                <Text style={[s.footerTotal, { color: B.danger }]}>
+                  Tổng chi NCC: {fmtMoney(tongChiNCC)}
+                </Text>
+              </View>
             </View>
-          </ScrollView>
-
-          <View style={s.cardFooter}>
-            <Text style={[s.footerTotal, { color: B.danger }]}>
-              Tổng chi NCC: {fmtMoney(tongChiNCC)}
-            </Text>
-          </View>
+          ) : (
+            <Text style={s.emptyText}>Không có dữ liệu</Text>
+          )}
         </View>
 
         {/* Chi trả thuốc */}
@@ -600,87 +599,501 @@ export default function Baocaothuchi() {
           <Text style={[s.cardTitle, { color: B.danger }]}>
             2. Chi bệnh nhân trả lại thuốc
           </Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={true}>
+          {dataFiltered.chiTraThuoc.length > 0 ? (
             <View>
-              <TableHeader
-                cols={["STT", "Tên bệnh nhân", "Người chi", "Ngày chi", "Số tiền"]}
-                widths={[40, 180, 120, 100, 120]}
-              />
               {dataFiltered.chiTraThuoc.map((item, idx) => (
-                <View key={item.id} style={s.tableRow}>
-                  <Text style={[s.cell, { width: 40 }]}>{idx + 1}</Text>
-                  <Text
-                    style={[
-                      s.cell,
-                      { width: 180, textAlign: "left", fontWeight: "600" },
-                    ]}
-                  >
-                    {item.tenBN}
-                  </Text>
-                  <Text style={[s.cell, { width: 120 }]}>{item.nguoiChi}</Text>
-                  <Text style={[s.cell, { width: 100 }]}>{fmtDate(item.ngay)}</Text>
-                  <Text
-                    style={[
-                      s.cell,
-                      { width: 120, fontWeight: "700", color: B.danger },
-                    ]}
-                  >
-                    {fmtMoney(item.soTien)}
-                  </Text>
+                <View key={item.id} style={s.dataItem}>
+                  <View style={s.dataItemHeader}>
+                    <View style={s.dataItemNum}>
+                      <Text style={s.dataItemNumTxt}>{idx + 1}</Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={s.dataItemName}>{item.tenBN}</Text>
+                      <Text style={s.dataItemSub}>{item.nguoiChi}</Text>
+                    </View>
+                    <Text style={s.dataItemDate}>{fmtDate(item.ngay)}</Text>
+                  </View>
+                  <View style={s.dataItemMoneySimple}>
+                    <Text style={s.dataMoneyLabel}>Số tiền</Text>
+                    <Text style={[s.dataMoneyVal, { color: B.danger }]}>
+                      {fmtMoney(item.soTien)}
+                    </Text>
+                  </View>
                 </View>
               ))}
+              <View style={s.cardFooter}>
+                <Text style={[s.footerTotal, { color: B.danger }]}>
+                  Tổng chi trả lại: {fmtMoney(tongChiTraThuoc)}
+                </Text>
+              </View>
             </View>
-          </ScrollView>
-
-          <View style={s.cardFooter}>
-            <Text style={[s.footerTotal, { color: B.danger }]}>
-              Tổng chi trả lại: {fmtMoney(tongChiTraThuoc)}
-            </Text>
-          </View>
+          ) : (
+            <Text style={s.emptyText}>Không có dữ liệu</Text>
+          )}
         </View>
 
         {/* Chi khác */}
         <View style={s.card}>
-          <Text style={[s.cardTitle, { color: B.danger }]}>3. Khoản chi khác</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={true}>
+          <Text style={[s.cardTitle, { color: B.danger }]}>
+            3. Khoản chi khác
+          </Text>
+          {dataFiltered.chiKhac.length > 0 ? (
             <View>
-              <TableHeader
-                cols={["STT", "Tên khoản chi", "Người chi", "Ngày chi", "Số tiền"]}
-                widths={[40, 180, 120, 100, 120]}
-              />
               {dataFiltered.chiKhac.map((item, idx) => (
-                <View key={item.id} style={s.tableRow}>
-                  <Text style={[s.cell, { width: 40 }]}>{idx + 1}</Text>
-                  <Text
-                    style={[
-                      s.cell,
-                      { width: 180, textAlign: "left", fontWeight: "600" },
-                    ]}
-                  >
-                    {item.tenKhoan}
-                  </Text>
-                  <Text style={[s.cell, { width: 120 }]}>{item.nguoiChi}</Text>
-                  <Text style={[s.cell, { width: 100 }]}>{fmtDate(item.ngay)}</Text>
-                  <Text
-                    style={[
-                      s.cell,
-                      { width: 120, fontWeight: "700", color: B.danger },
-                    ]}
-                  >
-                    {fmtMoney(item.soTien)}
-                  </Text>
+                <View key={item.id} style={s.dataItem}>
+                  <View style={s.dataItemHeader}>
+                    <View style={s.dataItemNum}>
+                      <Text style={s.dataItemNumTxt}>{idx + 1}</Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={s.dataItemName}>{item.tenKhoan}</Text>
+                      <Text style={s.dataItemSub}>{item.nguoiChi}</Text>
+                    </View>
+                    <Text style={s.dataItemDate}>{fmtDate(item.ngay)}</Text>
+                  </View>
+                  <View style={s.dataItemMoneySimple}>
+                    <Text style={s.dataMoneyLabel}>Số tiền</Text>
+                    <Text style={[s.dataMoneyVal, { color: B.danger }]}>
+                      {fmtMoney(item.soTien)}
+                    </Text>
+                  </View>
                 </View>
               ))}
+              <View style={s.cardFooter}>
+                <Text style={[s.footerTotal, { color: B.danger }]}>
+                  Tổng chi khác: {fmtMoney(tongChiKhac)}
+                </Text>
+              </View>
             </View>
-          </ScrollView>
-
-          <View style={s.cardFooter}>
-            <Text style={[s.footerTotal, { color: B.danger }]}>
-              Tổng chi khác: {fmtMoney(tongChiKhac)}
-            </Text>
-          </View>
+          ) : (
+            <Text style={s.emptyText}>Không có dữ liệu</Text>
+          )}
         </View>
       </ScrollView>
+
+      {/* Nút in */}
+      <View style={s.fabWrap}>
+        <TouchableOpacity
+          style={s.fabBtn}
+          onPress={() => setPrintModalVisible(true)}>
+          <Ionicons name="print-outline" size={18} color="#fff" />
+          <Text style={s.fabBtnTxt}>In báo cáo Thu - Chi</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* ── MODAL IN ── */}
+      <Modal
+        visible={printModalVisible}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setPrintModalVisible(false)}>
+        <View style={s.modalOverlay}>
+          <View style={[s.modalSheet, { minHeight: "92%" }]}>
+            <View style={s.modalHandle} />
+            <View style={s.modalHeader}>
+              <View style={s.modalHeaderLeft}>
+                <View
+                  style={[s.modalHeaderIcon, { backgroundColor: "#ECFDF5" }]}>
+                  <Ionicons name="print" size={17} color={B.success} />
+                </View>
+                <Text style={s.modalTitle}>Báo cáo Thu - Chi</Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => setPrintModalVisible(false)}
+                style={s.closeBtn}>
+                <Ionicons name="close" size={20} color={B.textTitle} />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView
+              style={s.modalBody}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={[
+                s.modalBodyContent,
+                { paddingBottom: 30 },
+              ]}>
+              {/* Header phòng khám */}
+              <View style={s.printClinic}>
+                <View style={s.printClinicTop}>
+                  <View style={s.printLogoBox}>
+                    <Ionicons name="medical" size={24} color="#fff" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={s.printClinicName}>HHIS MANAGE 2026</Text>
+                    <Text style={s.printClinicTagline}>
+                      Phần mềm quản lý phòng khám
+                    </Text>
+                  </View>
+                </View>
+                <View style={s.printClinicDivider} />
+                <View style={s.printClinicBottom}>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 5,
+                    }}>
+                    <Ionicons
+                      name="location-outline"
+                      size={11}
+                      color={B.primary}
+                    />
+                    <Text style={s.printClinicSub}>
+                      An Châu Yên Khang · Ý Yên · Nam Định
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 5,
+                    }}>
+                    <Ionicons name="call-outline" size={11} color={B.primary} />
+                    <Text style={s.printClinicSub}>0338.300901</Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Tiêu đề */}
+              <View style={s.printTitleBox}>
+                <Text style={s.printTitle}>BÁO CÁO THU - CHI</Text>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 6,
+                    marginTop: 4,
+                  }}>
+                  <Ionicons
+                    name="calendar-outline"
+                    size={12}
+                    color={B.textSub}
+                  />
+                  <Text style={s.printPeriodTxt}>
+                    Từ {fmtDate(tuNgay)} đến {fmtDate(denNgay)}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Tổng quan */}
+              <View style={s.printInfoBox}>
+                {[
+                  {
+                    icon: "trending-up-outline",
+                    label: "Tổng Thu",
+                    val: fmtMoney(tongThu),
+                    color: B.success,
+                  },
+                  {
+                    icon: "trending-down-outline",
+                    label: "Tổng Chi",
+                    val: fmtMoney(tongChi),
+                    color: B.danger,
+                  },
+                  {
+                    icon: "wallet-outline",
+                    label: "Còn lại",
+                    val: fmtMoney(conLai),
+                    color: B.info,
+                  },
+                ].map((row, i, arr) => (
+                  <View
+                    key={row.label}
+                    style={[
+                      s.printInfoRow,
+                      i === arr.length - 1
+                        ? { backgroundColor: "#ECFDF5", borderBottomWidth: 0 }
+                        : {},
+                    ]}>
+                    <View style={s.printInfoLeft}>
+                      <Ionicons
+                        name={row.icon as any}
+                        size={12}
+                        color={row.color}
+                      />
+                      <Text
+                        style={[
+                          s.printInfoLabel,
+                          { color: row.color, fontWeight: "700" },
+                        ]}>
+                        {row.label}
+                      </Text>
+                    </View>
+                    <Text
+                      style={[
+                        s.printInfoVal,
+                        { color: row.color, fontWeight: "800" },
+                      ]}>
+                      {row.val}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+
+              {/* Chi tiết */}
+              <Text style={s.printSecLabel}>Chi tiết báo cáo</Text>
+
+              {/* Thu */}
+              <Text style={[s.printSecSubLabel, { color: B.success }]}>
+                I. CÁC KHOẢN THU
+              </Text>
+              {dataFiltered.thuKhamBenh.length > 0 && (
+                <View style={s.pDetailCard}>
+                  <Text style={s.pDetailTitle}>1. Thu tiền khám bệnh</Text>
+                  {dataFiltered.thuKhamBenh.map((item, idx) => (
+                    <View key={item.id} style={s.pPrintItem}>
+                      <View style={s.pPrintItemRow1}>
+                        <Text style={s.pPrintIdx}>{idx + 1}.</Text>
+                        <Text style={s.pPrintName}>{item.tenBN}</Text>
+                        <Text style={s.pPrintDate}>{fmtDate(item.ngay)}</Text>
+                      </View>
+                      <View style={s.pPrintItemRow2}>
+                        <Text style={s.pPrintAddr}>{item.diaChi}</Text>
+                      </View>
+                      <View style={s.pPrintItemRow3}>
+                        <View style={s.pPrintMoneyBox}>
+                          <Text style={s.pPrintMoneyLabel}>Tiền mặt</Text>
+                          <Text
+                            style={[s.pPrintMoneyVal, { color: B.success }]}>
+                            {fmtMoney(item.tienMat)}
+                          </Text>
+                        </View>
+                        <View style={s.pPrintMoneyBox}>
+                          <Text style={s.pPrintMoneyLabel}>CK</Text>
+                          <Text style={[s.pPrintMoneyVal, { color: B.info }]}>
+                            {fmtMoney(item.chuyenKhoan)}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                  ))}
+                  <View style={s.pDetailMoneyBox}>
+                    <View style={s.pMoneyItem}>
+                      <Text style={s.pMoneyLabel}>Tiền mặt</Text>
+                      <Text style={[s.pMoneyVal, { color: B.success }]}>
+                        {fmtMoney(tongThuKhamMat)}
+                      </Text>
+                    </View>
+                    <View style={s.pMoneyItem}>
+                      <Text style={s.pMoneyLabel}>CK</Text>
+                      <Text style={[s.pMoneyVal, { color: B.info }]}>
+                        {fmtMoney(tongThuKhamCK)}
+                      </Text>
+                    </View>
+                    <View style={s.pMoneyItem}>
+                      <Text style={s.pMoneyLabel}>Tổng</Text>
+                      <Text style={[s.pMoneyVal, { color: B.primary }]}>
+                        {fmtMoney(tongThuKham)}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              )}
+              {dataFiltered.thuBanThuoc.length > 0 && (
+                <View style={s.pDetailCard}>
+                  <Text style={s.pDetailTitle}>2. Thu tiền bán thuốc</Text>
+                  {dataFiltered.thuBanThuoc.map((item, idx) => (
+                    <View key={item.id} style={s.pPrintItem}>
+                      <View style={s.pPrintItemRow1}>
+                        <Text style={s.pPrintIdx}>{idx + 1}.</Text>
+                        <Text style={s.pPrintName}>{item.tenBN}</Text>
+                        <Text style={s.pPrintDate}>{fmtDate(item.ngay)}</Text>
+                      </View>
+                      <View style={s.pPrintItemRow2}>
+                        <Text style={s.pPrintAddr}>{item.diaChi}</Text>
+                      </View>
+                      <View style={s.pPrintItemRow3}>
+                        <View style={s.pPrintMoneyBox}>
+                          <Text style={s.pPrintMoneyLabel}>Tiền mặt</Text>
+                          <Text
+                            style={[s.pPrintMoneyVal, { color: B.success }]}>
+                            {fmtMoney(item.tienMat)}
+                          </Text>
+                        </View>
+                        <View style={s.pPrintMoneyBox}>
+                          <Text style={s.pPrintMoneyLabel}>CK</Text>
+                          <Text style={[s.pPrintMoneyVal, { color: B.info }]}>
+                            {fmtMoney(item.chuyenKhoan)}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                  ))}
+                  <View style={s.pDetailMoneyBox}>
+                    <View style={s.pMoneyItem}>
+                      <Text style={s.pMoneyLabel}>Tiền mặt</Text>
+                      <Text style={[s.pMoneyVal, { color: B.success }]}>
+                        {fmtMoney(tongThuThuocMat)}
+                      </Text>
+                    </View>
+                    <View style={s.pMoneyItem}>
+                      <Text style={s.pMoneyLabel}>CK</Text>
+                      <Text style={[s.pMoneyVal, { color: B.info }]}>
+                        {fmtMoney(tongThuThuocCK)}
+                      </Text>
+                    </View>
+                    <View style={s.pMoneyItem}>
+                      <Text style={s.pMoneyLabel}>Tổng</Text>
+                      <Text style={[s.pMoneyVal, { color: B.primary }]}>
+                        {fmtMoney(tongThuThuoc)}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              )}
+              {dataFiltered.thuKhac.length > 0 && (
+                <View style={s.pDetailCard}>
+                  <Text style={s.pDetailTitle}>3. Khoản thu khác</Text>
+                  {dataFiltered.thuKhac.map((item, idx) => (
+                    <View key={item.id} style={s.pPrintItem}>
+                      <View style={s.pPrintItemRow1}>
+                        <Text style={s.pPrintIdx}>{idx + 1}.</Text>
+                        <Text style={s.pPrintName}>{item.tenKhoan}</Text>
+                        <Text style={s.pPrintDate}>{fmtDate(item.ngay)}</Text>
+                      </View>
+                      <View style={s.pPrintItemRow2}>
+                        <Text style={s.pPrintAddr}>{item.nguoiThu}</Text>
+                      </View>
+                      <View style={s.pPrintItemRow3}>
+                        <View style={s.pPrintMoneyBox}>
+                          <Text style={s.pPrintMoneyLabel}>Số tiền</Text>
+                          <Text
+                            style={[s.pPrintMoneyVal, { color: B.success }]}>
+                            {fmtMoney(item.soTien)}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                  ))}
+                  <View style={s.pDetailFooter}>
+                    <Text style={s.pDetailFooterLabel}>Tổng</Text>
+                    <Text style={[s.pDetailFooterVal, { color: B.success }]}>
+                      {fmtMoney(tongThuKhac)}
+                    </Text>
+                  </View>
+                </View>
+              )}
+
+              {/* Chi */}
+              <Text
+                style={[
+                  s.printSecSubLabel,
+                  { color: B.danger, marginTop: 16 },
+                ]}>
+                II. CÁC KHOẢN CHI
+              </Text>
+              {dataFiltered.chiNCC.length > 0 && (
+                <View style={s.pDetailCard}>
+                  <Text style={[s.pDetailTitle, { color: B.danger }]}>
+                    1. Chi cho nhà cung cấp
+                  </Text>
+                  {dataFiltered.chiNCC.map((item, idx) => (
+                    <View key={item.id} style={s.pDetailRow}>
+                      <Text style={s.pDetailIdx}>{idx + 1}</Text>
+                      <View style={{ flex: 1 }}>
+                        <Text style={s.pDetailName}>{item.tenNCC}</Text>
+                        <Text style={s.pDetailSub}>{item.diaChi}</Text>
+                      </View>
+                      <Text style={[s.pDetailMoney, { color: B.danger }]}>
+                        {fmtMoney(item.soTien)}
+                      </Text>
+                    </View>
+                  ))}
+                  <View style={s.pDetailFooter}>
+                    <Text style={s.pDetailFooterLabel}>Tổng</Text>
+                    <Text style={[s.pDetailFooterVal, { color: B.danger }]}>
+                      {fmtMoney(tongChiNCC)}
+                    </Text>
+                  </View>
+                </View>
+              )}
+              {dataFiltered.chiTraThuoc.length > 0 && (
+                <View style={s.pDetailCard}>
+                  <Text style={[s.pDetailTitle, { color: B.danger }]}>
+                    2. Chi bệnh nhân trả lại thuốc
+                  </Text>
+                  {dataFiltered.chiTraThuoc.map((item, idx) => (
+                    <View key={item.id} style={s.pDetailRow}>
+                      <Text style={s.pDetailIdx}>{idx + 1}</Text>
+                      <View style={{ flex: 1 }}>
+                        <Text style={s.pDetailName}>{item.tenBN}</Text>
+                        <Text style={s.pDetailSub}>{item.nguoiChi}</Text>
+                      </View>
+                      <Text style={[s.pDetailMoney, { color: B.danger }]}>
+                        {fmtMoney(item.soTien)}
+                      </Text>
+                    </View>
+                  ))}
+                  <View style={s.pDetailFooter}>
+                    <Text style={s.pDetailFooterLabel}>Tổng</Text>
+                    <Text style={[s.pDetailFooterVal, { color: B.danger }]}>
+                      {fmtMoney(tongChiTraThuoc)}
+                    </Text>
+                  </View>
+                </View>
+              )}
+              {dataFiltered.chiKhac.length > 0 && (
+                <View style={s.pDetailCard}>
+                  <Text style={[s.pDetailTitle, { color: B.danger }]}>
+                    3. Khoản chi khác
+                  </Text>
+                  {dataFiltered.chiKhac.map((item, idx) => (
+                    <View key={item.id} style={s.pDetailRow}>
+                      <Text style={s.pDetailIdx}>{idx + 1}</Text>
+                      <View style={{ flex: 1 }}>
+                        <Text style={s.pDetailName}>{item.tenKhoan}</Text>
+                        <Text style={s.pDetailSub}>{item.nguoiChi}</Text>
+                      </View>
+                      <Text style={[s.pDetailMoney, { color: B.danger }]}>
+                        {fmtMoney(item.soTien)}
+                      </Text>
+                    </View>
+                  ))}
+                  <View style={s.pDetailFooter}>
+                    <Text style={s.pDetailFooterLabel}>Tổng</Text>
+                    <Text style={[s.pDetailFooterVal, { color: B.danger }]}>
+                      {fmtMoney(tongChiKhac)}
+                    </Text>
+                  </View>
+                </View>
+              )}
+
+              {/* Chữ ký */}
+              <View style={s.printSigRow}>
+                <View style={s.printSigBox}>
+                  <Text style={s.printSigTitle}>Người lập báo cáo</Text>
+                  <Text style={s.printSigSub}>(Ký, ghi rõ họ tên)</Text>
+                  <View style={s.printSigLine} />
+                </View>
+                <View style={s.printSigBox}>
+                  <Text style={s.printSigTitle}>Trưởng khoa</Text>
+                  <Text style={s.printSigSub}>(Ký, ghi rõ họ tên)</Text>
+                  <View style={s.printSigLine} />
+                </View>
+                <View style={s.printSigBox}>
+                  <Text style={s.printSigTitle}>Giám đốc</Text>
+                  <Text style={s.printSigSub}>(Ký, đóng dấu)</Text>
+                  <View style={s.printSigLine} />
+                </View>
+              </View>
+            </ScrollView>
+
+            <View style={s.modalFooter}>
+              <TouchableOpacity
+                style={s.cancelBtn}
+                onPress={() => setPrintModalVisible(false)}>
+                <Text style={s.cancelBtnTxt}>Đóng</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[s.saveBtn, { backgroundColor: B.success }]}
+                onPress={() => setPrintModalVisible(false)}>
+                <Ionicons name="print-outline" size={18} color="#fff" />
+                <Text style={s.saveBtnTxt}>In báo cáo</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -899,5 +1312,534 @@ const s = StyleSheet.create({
     fontSize: 12,
     fontWeight: "900",
     textAlign: "center",
+  },
+
+  // Compact Data Display Styles
+  dataItem: {
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderBottomWidth: 0.5,
+    borderBottomColor: B.border,
+  },
+  dataItemHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 8,
+  },
+  dataItemNum: {
+    width: 28,
+    height: 28,
+    borderRadius: 6,
+    backgroundColor: "#F1F5F9",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  dataItemNumTxt: {
+    fontSize: 11,
+    fontWeight: "800",
+    color: B.textSub,
+  },
+  dataItemName: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: B.textTitle,
+  },
+  dataItemSub: {
+    fontSize: 10,
+    color: B.textSub,
+    marginTop: 2,
+  },
+  dataItemDate: {
+    fontSize: 10,
+    color: B.textSub,
+    fontWeight: "600",
+  },
+  dataItemMoney: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  dataMoneyCol: {
+    flex: 1,
+    alignItems: "center",
+    paddingVertical: 6,
+    paddingHorizontal: 4,
+  },
+  dataMoneyLabel: {
+    fontSize: 9,
+    color: B.textSub,
+    fontWeight: "600",
+    marginBottom: 2,
+  },
+  dataMoneyVal: {
+    fontSize: 11,
+    fontWeight: "800",
+    textAlign: "center",
+  },
+  dataItemMoneySimple: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    backgroundColor: "#F8FAFC",
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  emptyText: {
+    fontSize: 12,
+    color: B.textSub,
+    textAlign: "center",
+    paddingVertical: 20,
+    fontStyle: "italic",
+  },
+
+  // Print Button & Modal
+  addBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  fabWrap: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 16,
+    paddingBottom: Platform.OS === "ios" ? 24 : 16,
+    paddingTop: 10,
+    backgroundColor: B.background,
+    borderTopWidth: 1,
+    borderTopColor: B.border,
+  },
+  fabBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    backgroundColor: B.primary,
+    borderRadius: 12,
+    paddingVertical: 14,
+    ...Platform.select({
+      ios: {
+        shadowColor: B.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+      },
+      android: { elevation: 6 },
+    }),
+  },
+  fabBtnTxt: { fontSize: 15, fontWeight: "800", color: "#fff" },
+
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "flex-end",
+  },
+  modalSheet: {
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    flexDirection: "column",
+  },
+  modalHandle: {
+    alignSelf: "center",
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: B.border,
+    marginTop: 8,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: B.border,
+  },
+  modalHeaderLeft: { flexDirection: "row", alignItems: "center", gap: 10 },
+  modalHeaderIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: B.textTitle,
+  },
+  closeBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalBody: { flex: 1 },
+  modalBodyContent: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+  },
+  modalFooter: {
+    flexDirection: "row",
+    gap: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderTopWidth: 1,
+    borderTopColor: B.border,
+  },
+  cancelBtn: {
+    flex: 1,
+    backgroundColor: "#F1F5F9",
+    borderRadius: 10,
+    paddingVertical: 12,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  cancelBtnTxt: {
+    fontSize: 13,
+    fontWeight: "800",
+    color: B.textTitle,
+  },
+  saveBtn: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    backgroundColor: B.primary,
+    borderRadius: 10,
+    paddingVertical: 12,
+  },
+  saveBtnTxt: {
+    fontSize: 13,
+    fontWeight: "800",
+    color: "#fff",
+  },
+
+  printClinic: {
+    backgroundColor: B.white,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: B.border,
+    overflow: "hidden",
+    marginBottom: 16,
+  },
+  printClinicTop: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    padding: 12,
+  },
+  printLogoBox: {
+    width: 44,
+    height: 44,
+    borderRadius: 10,
+    backgroundColor: B.primary,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  printClinicName: {
+    fontSize: 14,
+    fontWeight: "800",
+    color: B.textTitle,
+  },
+  printClinicTagline: {
+    fontSize: 11,
+    color: B.textSub,
+    marginTop: 2,
+  },
+  printClinicDivider: {
+    height: 1,
+    backgroundColor: B.border,
+  },
+  printClinicBottom: {
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    gap: 6,
+  },
+  printClinicSub: {
+    fontSize: 10,
+    color: B.textSub,
+  },
+
+  printTitleBox: {
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  printTitle: {
+    fontSize: 16,
+    fontWeight: "900",
+    color: B.textTitle,
+    letterSpacing: 0.5,
+  },
+  printPeriodTxt: {
+    fontSize: 11,
+    color: B.textSub,
+  },
+
+  printInfoBox: {
+    backgroundColor: B.white,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: B.border,
+    overflow: "hidden",
+    marginBottom: 16,
+  },
+  printInfoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: B.border,
+  },
+  printInfoLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  printInfoLabel: {
+    fontSize: 11,
+    fontWeight: "600",
+  },
+  printInfoVal: {
+    fontSize: 12,
+    fontWeight: "800",
+  },
+
+  printSecLabel: {
+    fontSize: 12,
+    fontWeight: "900",
+    color: B.textTitle,
+    marginBottom: 12,
+    marginTop: 4,
+  },
+  printSecSubLabel: {
+    fontSize: 11,
+    fontWeight: "800",
+    marginBottom: 10,
+    marginTop: 12,
+    textTransform: "uppercase",
+    letterSpacing: 0.3,
+  },
+
+  pDetailCard: {
+    backgroundColor: B.white,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: B.border,
+    overflow: "hidden",
+    marginBottom: 12,
+  },
+  pDetailTitle: {
+    fontSize: 12,
+    fontWeight: "800",
+    color: B.success,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    backgroundColor: "#F8FAFC",
+    borderBottomWidth: 1,
+    borderBottomColor: B.border,
+  },
+  pDetailRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderBottomWidth: 0.5,
+    borderBottomColor: B.border,
+  },
+  pDetailIdx: {
+    fontSize: 10,
+    fontWeight: "800",
+    color: B.textSub,
+    minWidth: 18,
+  },
+  pDetailName: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: B.textTitle,
+  },
+  pDetailSub: {
+    fontSize: 9,
+    color: B.textSub,
+    marginTop: 2,
+  },
+  pDetailMoney: {
+    fontSize: 11,
+    fontWeight: "800",
+    minWidth: 80,
+    textAlign: "right",
+  },
+  pDetailFooter: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    backgroundColor: "#F8FAFC",
+    borderTopWidth: 1,
+    borderTopColor: B.border,
+  },
+  pDetailFooterLabel: {
+    fontSize: 11,
+    fontWeight: "800",
+    color: B.textSub,
+  },
+  pDetailFooterVal: {
+    fontSize: 12,
+    fontWeight: "900",
+  },
+
+  pDetailTableHeader: {
+    flexDirection: "row",
+    backgroundColor: "#F1F5F9",
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: B.border,
+  },
+  pDetailTableCol: {
+    fontSize: 9,
+    fontWeight: "800",
+    color: B.textSub,
+    textAlign: "center",
+    textTransform: "uppercase",
+  },
+  pDetailTableRow: {
+    flexDirection: "row",
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    borderBottomWidth: 0.5,
+    borderBottomColor: B.border,
+    alignItems: "center",
+  },
+  pDetailTableCell: {
+    fontSize: 9,
+    fontWeight: "600",
+    color: B.textTitle,
+    textAlign: "center",
+  },
+  pDetailMoneyBox: {
+    flexDirection: "row",
+    gap: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 10,
+    backgroundColor: "#F8FAFC",
+    borderTopWidth: 1,
+    borderTopColor: B.border,
+  },
+  pMoneyItem: {
+    flex: 1,
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 6,
+    borderWidth: 1,
+    borderColor: B.border,
+    alignItems: "center",
+  },
+  pMoneyLabel: {
+    fontSize: 9,
+    color: B.textSub,
+    marginBottom: 2,
+    fontWeight: "600",
+  },
+  pMoneyVal: {
+    fontSize: 10,
+    fontWeight: "900",
+    textAlign: "center",
+  },
+
+  // Print Compact Display
+  pPrintItem: {
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderBottomWidth: 0.5,
+    borderBottomColor: B.border,
+  },
+  pPrintItemRow1: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 4,
+  },
+  pPrintIdx: {
+    fontSize: 9,
+    fontWeight: "800",
+    color: B.textSub,
+    minWidth: 16,
+  },
+  pPrintName: {
+    fontSize: 10,
+    fontWeight: "700",
+    color: B.textTitle,
+    flex: 1,
+  },
+  pPrintDate: {
+    fontSize: 8,
+    color: B.textSub,
+    fontWeight: "600",
+  },
+  pPrintItemRow2: {
+    marginBottom: 4,
+  },
+  pPrintAddr: {
+    fontSize: 8,
+    color: B.textSub,
+    marginLeft: 24,
+  },
+  pPrintItemRow3: {
+    flexDirection: "row",
+    gap: 6,
+    marginLeft: 24,
+  },
+  pPrintMoneyBox: {
+    flex: 1,
+    alignItems: "center",
+  },
+  pPrintMoneyLabel: {
+    fontSize: 7,
+    color: B.textSub,
+    fontWeight: "600",
+  },
+  pPrintMoneyVal: {
+    fontSize: 8,
+    fontWeight: "800",
+  },
+
+  printSigRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 10,
+    marginTop: 20,
+  },
+  printSigBox: {
+    flex: 1,
+    alignItems: "center",
+  },
+  printSigTitle: {
+    fontSize: 11,
+    fontWeight: "800",
+    color: B.textTitle,
+  },
+  printSigSub: {
+    fontSize: 9,
+    color: B.textSub,
+    marginTop: 2,
+  },
+  printSigLine: {
+    width: "100%",
+    height: 1,
+    backgroundColor: B.border,
+    marginTop: 24,
   },
 });
