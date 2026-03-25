@@ -8,6 +8,7 @@
     "scheme": "hhis",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.trueh.hhis",
@@ -15,6 +16,7 @@
         "ITSAppUsesNonExemptEncryption": false
       }
     },
+
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
@@ -24,10 +26,12 @@
       "predictiveBackGestureEnabled": false,
       "package": "com.trueh.hhis"
     },
+
     "web": {
       "output": "static",
       "favicon": "./assets/images/logo.png"
     },
+
     "plugins": [
       "expo-router",
       [
@@ -44,23 +48,27 @@
       ],
       "expo-font",
       "expo-secure-store",
-      "@react-native-community/datetimepicker",
-      "expo-barcode-scanner"
+      "@react-native-community/datetimepicker"
     ],
+
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
     },
+
     "extra": {
       "router": {},
       "eas": {
         "projectId": "dc7f9eb9-24ed-4a3d-9a70-062589ca022a"
       }
     },
+
     "owner": "trueh",
+
     "runtimeVersion": {
       "policy": "appVersion"
     },
+
     "updates": {
       "url": "https://u.expo.dev/dc7f9eb9-24ed-4a3d-9a70-062589ca022a"
     }
